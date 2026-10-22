@@ -166,32 +166,35 @@ Creates an optimized production bundle in the `dist/` folder.
 
 ## 📤 Uploading to GitHub / Creating a New Git Repository
 
-Follow these step-by-step commands to push RouteX to your personal GitHub account:
+Follow these step-by-step commands to push RouteX to your GitHub account (`Parth-2006`):
 
-### Step 1: Initialize Git in your project folder
-Open a terminal in the project directory:
+### Step 1: Local Git Status
+Your local repository is already initialized on branch `main` and all 44 project files are committed!
+Verify anytime with:
 ```bash
-git init
-git add .
-git commit -m "feat: complete RouteX algorithm comparison platform with OSM road networks"
+git status
 ```
 
 ### Step 2: Create a new repository on GitHub
-1. Go to [GitHub.com](https://github.com) and log in.
-2. Click the **`+`** icon in the top-right corner and select **New repository**.
-3. Name your repository: `RouteX` (or `RouteX-AOA-Algorithms`).
-4. Set visibility to **Public** (or **Private** as desired).
-5. **Do NOT** check "Add a README file" or ".gitignore" (we already have them).
-6. Click **Create repository**.
+1. Go to [https://github.com/new](https://github.com/new) and log in as **`Parth-2006`**.
+2. Name your repository: **`RouteX`** (or `RouteX-Algorithm-Comparison`).
+3. Set visibility to **Public** (or **Private** as desired).
+4. **Leave all checkboxes blank** (do NOT check "Add a README", ".gitignore", or "Choose a license" because they are already present locally).
+5. Click **Create repository**.
 
 ### Step 3: Link and push your local code
-Copy the commands shown on GitHub under **"…or push an existing repository from the command line"**:
+In your terminal (inside the `RouteX` project folder), run:
 ```bash
-git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/RouteX.git
+git remote add origin https://github.com/Parth-2006/RouteX.git
 git push -u origin main
 ```
-*(Replace `YOUR_USERNAME` with your actual GitHub username).*
+
+*(If you ever make new code changes in the future, simply run:)*
+```bash
+git add .
+git commit -m "update: your message here"
+git push
+```
 
 ---
 
