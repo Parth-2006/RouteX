@@ -4,3 +4,6 @@ export * from './searchAlgorithms';
 export * from './roadGraphParser';
 export * from './sampleRoadGraphs';
 export * from './overpassService';
+export * from './syntheticCityGenerator';
+export * from './searchTracer';
+
