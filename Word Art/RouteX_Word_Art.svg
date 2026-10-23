@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" style="background:#050814; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <defs>
+    <filter id="glow-strong" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    <filter id="glow-subtle" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2.5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <path id="outer-circle-top" d="M 100, 400 A 300, 300 0 0, 1 700, 400" fill="none" />
+    <path id="outer-circle-bottom" d="M 700, 400 A 300, 300 0 0, 1 100, 400" fill="none" />
+    <path id="mid-circle-top" d="M 180, 400 A 220, 220 0 0, 1 620, 400" fill="none" />
+    <path id="mid-circle-bottom" d="M 620, 400 A 220, 220 0 0, 1 180, 400" fill="none" />
+    <path id="inner-circle-top" d="M 260, 400 A 140, 140 0 0, 1 540, 400" fill="none" />
+    <path id="inner-circle-bottom" d="M 540, 400 A 140, 140 0 0, 1 260, 400" fill="none" />
+  </defs>
+
+  <!-- Background Geometry -->
+  <rect width="100%" height="100%" fill="#050814" />
+  <circle cx="400" cy="400" r="380" fill="none" stroke="#0f1d38" stroke-width="1.5" />
+  <circle cx="400" cy="400" r="300" fill="none" stroke="#16294a" stroke-width="2" />
+  <circle cx="400" cy="400" r="220" fill="none" stroke="#1e3a63" stroke-width="1.5" stroke-dasharray="6 4" />
+  <circle cx="400" cy="400" r="140" fill="none" stroke="#254a7c" stroke-width="1.5" />
+  <circle cx="400" cy="400" r="70" fill="none" stroke="#06b6d4" stroke-width="2" opacity="0.4" />
+
+  <line x1="400" y1="20" x2="400" y2="780" stroke="#0e2343" stroke-width="2" stroke-dasharray="8 6" />
+  <line x1="20" y1="400" x2="780" y2="400" stroke="#0e2343" stroke-width="2" stroke-dasharray="8 6" />
+  <line x1="130" y1="130" x2="670" y2="670" stroke="#0e2343" stroke-width="1.5" opacity="0.6" />
+  <line x1="670" y1="130" x2="130" y2="670" stroke="#0e2343" stroke-width="1.5" opacity="0.6" />
+
+  <polygon points="400,80 415,350 400,380 385,350" fill="none" stroke="#06b6d4" stroke-width="1.5" opacity="0.5" />
+  <polygon points="400,720 415,450 400,420 385,450" fill="none" stroke="#06b6d4" stroke-width="1.5" opacity="0.5" />
+  <polygon points="80,400 350,415 380,400 350,385" fill="none" stroke="#06b6d4" stroke-width="1.5" opacity="0.5" />
+  <polygon points="720,400 450,415 420,400 450,385" fill="none" stroke="#06b6d4" stroke-width="1.5" opacity="0.5" />
+
+  <!-- Circular Texts -->
+  <text fill="#06b6d4" font-size="13" font-weight="800" letter-spacing="4px" opacity="0.9">
+    <textPath href="#outer-circle-top" startOffset="50%" text-anchor="middle">
+      ★ ANALYSIS OF ALGORITHMS • SHORTEST PATH ROUTING • GEODESIC METRICS ★
+    </textPath>
+  </text>
+
+  <text fill="#38bdf8" font-size="12" font-weight="700" letter-spacing="3.5px" opacity="0.8">
+    <textPath href="#outer-circle-bottom" startOffset="50%" text-anchor="middle">
+      ★ TIME COMPLEXITY O((V+E) LOG V) • SPACE COMPLEXITY O(V) • HAVERSINE ★
+    </textPath>
+  </text>
+
+  <text fill="#10b981" font-size="12" font-weight="800" letter-spacing="3px" opacity="0.9">
+    <textPath href="#mid-circle-top" startOffset="50%" text-anchor="middle">
+      DIJKSTRA'S ALGORITHM • A* SEARCH • MIN-HEAP PRIORITY QUEUE
+    </textPath>
+  </text>
+
+  <text fill="#f59e0b" font-size="11" font-weight="700" letter-spacing="2.5px" opacity="0.85">
+    <textPath href="#mid-circle-bottom" startOffset="50%" text-anchor="middle">
+      BREADTH-FIRST SEARCH • DEPTH-FIRST SEARCH • GREEDY BEST-FIRST
+    </textPath>
+  </text>
+
+  <text fill="#ec4899" font-size="11" font-weight="800" letter-spacing="2px">
+    <textPath href="#inner-circle-top" startOffset="50%" text-anchor="middle">
+      ADMISSIBILITY h(n) ≤ d*(n) • MONOTONICITY
+    </textPath>
+  </text>
+
+  <text fill="#a855f7" font-size="10" font-weight="700" letter-spacing="2px">
+    <textPath href="#inner-circle-bottom" startOffset="50%" text-anchor="middle">
+      100+ NODES METROPOLIS • 9 RIVER BRIDGES
+    </textPath>
+  </text>
+
+  <!-- Central Hub: RouteX -->
+  <g transform="translate(400, 400)">
+    <polygon points="0,-50 43.3,-25 43.3,25 0,50 -43.3,25 -43.3,-25" fill="#091428" stroke="#06b6d4" stroke-width="2.5" filter="url(#glow-strong)" />
+    <text x="0" y="2" fill="#ffffff" font-size="34" font-weight="900" letter-spacing="1px" text-anchor="middle" dominant-baseline="central" filter="url(#glow-subtle)">
+      RouteX
+    </text>
+    <text x="0" y="24" fill="#38bdf8" font-size="9" font-weight="700" letter-spacing="3px" text-anchor="middle">
+      ALGORITHM LAB
+    </text>
+  </g>
+
+  <!-- Cardinal Terms -->
+  <text x="400" y="145" fill="#10b981" font-size="20" font-weight="800" text-anchor="middle">A* SEARCH</text>
+  <text x="400" y="172" fill="#34d399" font-size="12" font-weight="700" text-anchor="middle">ADMISSIBILITY h(n) ≤ d*(n)</text>
+
+  <text x="400" y="650" fill="#06b6d4" font-size="20" font-weight="800" text-anchor="middle">DIJKSTRA</text>
+  <text x="400" y="675" fill="#38bdf8" font-size="12" font-weight="700" text-anchor="middle">BINARY MIN-HEAP PRIORITY QUEUE</text>
+
+  <text x="180" y="380" fill="#3b82f6" font-size="18" font-weight="800" text-anchor="middle">BREADTH-FIRST SEARCH</text>
+  <text x="180" y="405" fill="#60a5fa" font-size="12" font-weight="700" text-anchor="middle">FIFO QUEUE • O(V + E)</text>
+  <text x="180" y="428" fill="#93c5fd" font-size="11" font-weight="700" text-anchor="middle">HOP-OPTIMAL</text>
+
+  <text x="620" y="380" fill="#ec4899" font-size="18" font-weight="800" text-anchor="middle">DEPTH-FIRST SEARCH</text>
+  <text x="620" y="405" fill="#f472b6" font-size="12" font-weight="700" text-anchor="middle">LIFO STACK • RECURSION</text>
+  <text x="620" y="428" fill="#fbcfe8" font-size="11" font-weight="700" text-anchor="middle">NON-OPTIMAL TRAVERSAL</text>
+
+  <text x="240" y="240" fill="#f59e0b" font-size="15" font-weight="800" text-anchor="middle" transform="rotate(-30 240 240)">GREEDY BEST-FIRST</text>
+  <text x="270" y="290" fill="#fbbf24" font-size="11" font-weight="700" text-anchor="middle" transform="rotate(-30 270 290)">f(n) = h(n) HEURISTIC</text>
+
+  <text x="560" y="240" fill="#8b5cf6" font-size="15" font-weight="800" text-anchor="middle" transform="rotate(30 560 240)">HAVERSINE GEODESIC</text>
+  <text x="530" y="290" fill="#a78bfa" font-size="11" font-weight="700" text-anchor="middle" transform="rotate(30 530 290)">R = 6,371,000 METERS</text>
+
+  <text x="240" y="560" fill="#06b6d4" font-size="14" font-weight="800" text-anchor="middle" transform="rotate(30 240 560)">QUADRATIC BEZIER CURVES</text>
+  <text x="270" y="510" fill="#67e8f9" font-size="11" font-weight="700" text-anchor="middle" transform="rotate(30 270 510)">ROAD HIERARCHY</text>
+
+  <text x="560" y="560" fill="#10b981" font-size="14" font-weight="800" text-anchor="middle" transform="rotate(-30 560 560)">100+ INTERSECTIONS</text>
+  <text x="530" y="510" fill="#6ee7b7" font-size="11" font-weight="700" text-anchor="middle" transform="rotate(-30 530 510)">OPENSTREETMAP EXTRACTS</text>
+
+  <text x="330" y="335" fill="#94a3b8" font-size="10" font-weight="700" text-anchor="middle">EDGE RELAXATION</text>
+  <text x="470" y="335" fill="#94a3b8" font-size="10" font-weight="700" text-anchor="middle">ADJACENCY LIST</text>
+  <text x="330" y="475" fill="#94a3b8" font-size="10" font-weight="700" text-anchor="middle">FRONTIER SET</text>
+  <text x="470" y="475" fill="#94a3b8" font-size="10" font-weight="700" text-anchor="middle">CLOSED SET</text>
+  <text x="400" y="275" fill="#38bdf8" font-size="11" font-weight="800" text-anchor="middle">OPTIMALITY GUARANTEED</text>
+  <text x="400" y="535" fill="#f43f5e" font-size="11" font-weight="800" text-anchor="middle">DEAD-END OBSTACLES</text>
+</svg>

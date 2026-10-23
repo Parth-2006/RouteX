@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RouteX — Typographic Word Art & Conceptual Cloud</title>
+  <style>
+    :root {
+      --bg: #050814;
+      --card-bg: rgba(15, 23, 42, 0.9);
+      --border: rgba(51, 65, 85, 0.7);
+      --text: #f8fafc;
+      --cyan: #06b6d4;
+      --emerald: #10b981;
+      --blue: #3b82f6;
+      --amber: #f59e0b;
+      --pink: #ec4899;
+      --purple: #8b5cf6;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    /* Floating Toolbar */
+    .toolbar {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 100;
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      background: #1e293b;
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      background: #334155;
+      border-color: var(--cyan);
+      transform: translateY(-2px);
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, #0284c7, #06b6d4);
+      border: none;
+      box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4);
+    }
+
+    /* Container for Canvas */
+    .word-art-card {
+      width: 1000px;
+      max-width: 95vw;
+      background: #070c1e;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 40px;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.85);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .header-text {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .header-text h1 {
+      font-size: 24px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.02em;
+    }
+
+    .header-text p {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-top: 4px;
+    }
+
+    /* SVG Art Box */
+    .art-svg {
+      width: 820px;
+      max-width: 100%;
+      height: 820px;
+      filter: drop-shadow(0 0 20px rgba(6, 182, 212, 0.15));
+    }
+
+    /* Text Item Hover */
+    .word-item {
+      cursor: pointer;
+      transition: all 0.25s ease;
+      font-weight: 800;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+
+    .word-item:hover {
+      filter: drop-shadow(0 0 12px currentColor);
+      transform-origin: center;
+    }
+
+    /* Tooltip / Term Card */
+    #term-tooltip {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--cyan);
+      padding: 12px 24px;
+      border-radius: 50px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+      font-size: 13px;
+      color: #ffffff;
+      display: none;
+      z-index: 100;
+      pointer-events: none;
+      animation: popIn 0.2s ease;
+    }
+
+    #term-tooltip strong {
+      color: var(--cyan);
+      margin-right: 8px;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: translate(-50%, 10px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    /* Print Styles */
+    @media print {
+      body {
+        background: #000000 !important;
+        padding: 0 !important;
+      }
+      .toolbar, #term-tooltip {
+        display: none !important;
+      }
+      .word-art-card {
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+      @page {
+        size: A4 portrait;
+        margin: 1cm;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <button class="btn" onclick="saveAsSVG()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
+      Export SVG
+    </button>
+    <button class="btn primary" onclick="window.print()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="6 9 6 2 18 2 18 9"></polyline>
+        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+        <rect x="6" y="14" width="12" height="8"></rect>
+      </svg>
+      Print as Dossier Cover
+    </button>
+  </div>
+
+  <div class="word-art-card">
+    <div class="header-text">
+      <h1>RouteX — Algorithmic Typography Art</h1>
+      <p>Analysis of Algorithms Laboratory • Student Project Dossier Cover Art • Parth</p>
+    </div>
+
+    <!-- SVG Canvas with Circular Compass & City Grid Geometry -->
+    <svg id="word-art-svg" class="art-svg" viewBox="0 0 800 800">
+      <defs>
+        <!-- Luminous Glow Filters -->
+        <filter id="glow-strong" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="5" result="blur" />
+          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+        <filter id="glow-subtle" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="2.5" result="blur" />
+          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+
+        <!-- Circular Text Paths -->
+        <path id="outer-circle-top" d="M 100, 400 A 300, 300 0 0, 1 700, 400" fill="none" />
+        <path id="outer-circle-bottom" d="M 700, 400 A 300, 300 0 0, 1 100, 400" fill="none" />
+        <path id="mid-circle-top" d="M 180, 400 A 220, 220 0 0, 1 620, 400" fill="none" />
+        <path id="mid-circle-bottom" d="M 620, 400 A 220, 220 0 0, 1 180, 400" fill="none" />
+        <path id="inner-circle-top" d="M 260, 400 A 140, 140 0 0, 1 540, 400" fill="none" />
+        <path id="inner-circle-bottom" d="M 540, 400 A 140, 140 0 0, 1 260, 400" fill="none" />
+      </defs>
+
+      <!-- Background Network Geometry -->
+      <circle cx="400" cy="400" r="380" fill="none" stroke="#0f1d38" stroke-width="1.5" />
+      <circle cx="400" cy="400" r="300" fill="none" stroke="#16294a" stroke-width="2" />
+      <circle cx="400" cy="400" r="220" fill="none" stroke="#1e3a63" stroke-width="1.5" stroke-dasharray="6 4" />
+      <circle cx="400" cy="400" r="140" fill="none" stroke="#254a7c" stroke-width="1.5" />
+      <circle cx="400" cy="400" r="70" fill="none" stroke="#06b6d4" stroke-width="2" opacity="0.4" />
+
+      <!-- Compass Star Rays -->
+      <line x1="400" y1="20" x2="400" y2="780" stroke="#0e2343" stroke-width="2" stroke-dasharray="8 6" />
+      <line x1="20" y1="400" x2="780" y2="400" stroke="#0e2343" stroke-width="2" stroke-dasharray="8 6" />
+      <line x1="130" y1="130" x2="670" y2="670" stroke="#0e2343" stroke-width="1.5" opacity="0.6" />
+      <line x1="670" y1="130" x2="130" y2="670" stroke="#0e2343" stroke-width="1.5" opacity="0.6" />
+
+      <!-- Compass Diamond Pointer Shapes -->
+      <polygon points="400,80 415,350 400,380 385,350" fill="none" stroke="#06b6d4" stroke-width="1.5" opacity="0.5" />
+      <polygon points="400,720 415,450 400,420 385,450" fill="none" stroke="#06b6d4" stroke-width="1.5" opacity="0.5" />
+      <polygon points="80,400 350,415 380,400 350,385" fill="none" stroke="#06b6d4" stroke-width="1.5" opacity="0.5" />
+      <polygon points="720,400 450,415 420,400 450,385" fill="none" stroke="#06b6d4" stroke-width="1.5" opacity="0.5" />
+
+      <!-- CIRCULAR TEXT LAYER 1: Outer Orbit -->
+      <text fill="#06b6d4" font-size="13" font-weight="800" letter-spacing="4px" opacity="0.85">
+        <textPath href="#outer-circle-top" startOffset="50%" text-anchor="middle">
+          ★ ANALYSIS OF ALGORITHMS • SHORTEST PATH ROUTING • GEODESIC METRICS ★
+        </textPath>
+      </text>
+
+      <text fill="#38bdf8" font-size="12" font-weight="700" letter-spacing="3.5px" opacity="0.8">
+        <textPath href="#outer-circle-bottom" startOffset="50%" text-anchor="middle">
+          ★ TIME COMPLEXITY O((V+E) LOG V) • SPACE COMPLEXITY O(V) • HAVERSINE ★
+        </textPath>
+      </text>
+
+      <!-- CIRCULAR TEXT LAYER 2: Middle Orbit -->
+      <text fill="#10b981" font-size="12" font-weight="800" letter-spacing="3px" opacity="0.9">
+        <textPath href="#mid-circle-top" startOffset="50%" text-anchor="middle">
+          DIJKSTRA'S ALGORITHM • A* SEARCH • MIN-HEAP PRIORITY QUEUE
+        </textPath>
+      </text>
+
+      <text fill="#f59e0b" font-size="11" font-weight="700" letter-spacing="2.5px" opacity="0.85">
+        <textPath href="#mid-circle-bottom" startOffset="50%" text-anchor="middle">
+          BREADTH-FIRST SEARCH • DEPTH-FIRST SEARCH • GREEDY BEST-FIRST
+        </textPath>
+      </text>
+
+      <!-- CIRCULAR TEXT LAYER 3: Inner Orbit -->
+      <text fill="#ec4899" font-size="11" font-weight="800" letter-spacing="2px">
+        <textPath href="#inner-circle-top" startOffset="50%" text-anchor="middle">
+          ADMISSIBILITY h(n) ≤ d*(n) • MONOTONICITY
+        </textPath>
+      </text>
+
+      <text fill="#a855f7" font-size="10" font-weight="700" letter-spacing="2px">
+        <textPath href="#inner-circle-bottom" startOffset="50%" text-anchor="middle">
+          100+ NODES METROPOLIS • 9 RIVER BRIDGES
+        </textPath>
+      </text>
+
+      <!-- CENTRAL HERO: RouteX -->
+      <g transform="translate(400, 400)">
+        <!-- Core Background Hexagon -->
+        <polygon points="0,-50 43.3,-25 43.3,25 0,50 -43.3,25 -43.3,-25" fill="#091428" stroke="#06b6d4" stroke-width="2.5" filter="url(#glow-strong)" />
+        
+        <text class="word-item" x="0" y="2" fill="#ffffff" font-size="34" font-weight="900" letter-spacing="1px" filter="url(#glow-subtle)" data-title="RouteX" data-desc="Academic Laboratory for Empirical Analysis of Route Planning Algorithms">
+          RouteX
+        </text>
+        <text x="0" y="24" fill="#38bdf8" font-size="9" font-weight="700" letter-spacing="3px" text-anchor="middle">
+          ALGORITHM LAB
+        </text>
+      </g>
+
+      <!-- RADIAL TYPOGRAPHIC CLOUD: 4 Cardinal Points & Quadrants -->
+      <!-- NORTH (Top) -->
+      <text class="word-item" x="400" y="145" fill="#10b981" font-size="20" data-title="A* Search" data-desc="Heuristic search f(n) = g(n) + h(n) combining actual distance with admissible Haversine estimate.">
+        A* SEARCH
+      </text>
+      <text class="word-item" x="400" y="172" fill="#34d399" font-size="12" data-title="Admissibility" data-desc="Guarantees h(n) never overestimates distance to goal, ensuring mathematical optimality.">
+        ADMISSIBILITY h(n) ≤ d*(n)
+      </text>
+
+      <!-- SOUTH (Bottom) -->
+      <text class="word-item" x="400" y="650" fill="#06b6d4" font-size="20" data-title="Dijkstra's Algorithm" data-desc="Uniform-cost search minimizing g(n). Provably optimal for all non-negative edge costs.">
+        DIJKSTRA
+      </text>
+      <text class="word-item" x="400" y="675" fill="#38bdf8" font-size="12" data-title="Binary Min-Heap" data-desc="Priority queue implementation achieving O(log V) push and extract-min operations.">
+        BINARY MIN-HEAP PRIORITY QUEUE
+      </text>
+
+      <!-- WEST (Left) -->
+      <text class="word-item" x="180" y="380" fill="#3b82f6" font-size="18" data-title="Breadth-First Search" data-desc="Level-order traversal using FIFO queue. Discovers path with minimum edge hops (turns).">
+        BREADTH-FIRST SEARCH
+      </text>
+      <text class="word-item" x="180" y="405" fill="#60a5fa" font-size="12" data-title="FIFO Queue" data-desc="First-In-First-Out data structure powering BFS level exploration in O(V+E) time.">
+        FIFO QUEUE • O(V + E)
+      </text>
+      <text class="word-item" x="180" y="428" fill="#93c5fd" font-size="11" data-title="Hop-Optimality" data-desc="Minimizes intersection count rather than physical geodesic distance in meters.">
+        HOP-OPTIMAL
+      </text>
+
+      <!-- EAST (Right) -->
+      <text class="word-item" x="620" y="380" fill="#ec4899" font-size="18" data-title="Depth-First Search" data-desc="Explores along deepest branches first using LIFO stack. Non-optimal for distance.">
+        DEPTH-FIRST SEARCH
+      </text>
+      <text class="word-item" x="620" y="405" fill="#f472b6" font-size="12" data-title="LIFO Stack" data-desc="Last-In-First-Out data structure backing DFS recursive exploration.">
+        LIFO STACK • RECURSION
+      </text>
+      <text class="word-item" x="620" y="428" fill="#fbcfe8" font-size="11" data-title="Non-Optimal" data-desc="Can accumulate excessive detour distance before backtracking.">
+        NON-OPTIMAL TRAVERSAL
+      </text>
+
+      <!-- NORTH-WEST (Top-Left) -->
+      <text class="word-item" x="240" y="240" fill="#f59e0b" font-size="15" transform="rotate(-30 240 240)" data-title="Greedy Best-First" data-desc="Aggressively expands nodes with smallest h(n). Susceptible to dead ends.">
+        GREEDY BEST-FIRST
+      </text>
+      <text class="word-item" x="270" y="290" fill="#fbbf24" font-size="11" transform="rotate(-30 270 290)" data-title="Heuristic Only" data-desc="f(n) = h(n). Completely ignores accumulated path cost g(n).">
+        f(n) = h(n) HEURISTIC
+      </text>
+
+      <!-- NORTH-EAST (Top-Right) -->
+      <text class="word-item" x="560" y="240" fill="#8b5cf6" font-size="15" transform="rotate(30 560 240)" data-title="Haversine Formula" data-desc="Calculates great-circle distance on spherical Earth model (R = 6,371,000m).">
+        HAVERSINE GEODESIC
+      </text>
+      <text class="word-item" x="530" y="290" fill="#a78bfa" font-size="11" transform="rotate(30 530 290)" data-title="Spherical Earth" data-desc="Accurate spatial distance without planar projection distortion.">
+        R = 6,371,000 METERS
+      </text>
+
+      <!-- SOUTH-WEST (Bottom-Left) -->
+      <text class="word-item" x="240" y="560" fill="#06b6d4" font-size="14" transform="rotate(30 240 560)" data-title="Quadratic Bezier" data-desc="3-point parametric curve modeling authentic road network curvature.">
+        QUADRATIC BEZIER CURVES
+      </text>
+      <text class="word-item" x="270" y="510" fill="#67e8f9" font-size="11" transform="rotate(30 270 510)" data-title="Road Hierarchy" data-desc="Motorways, primary boulevards, secondary avenues, and residential alleys.">
+        ROAD HIERARCHY
+      </text>
+
+      <!-- SOUTH-EAST (Bottom-Right) -->
+      <text class="word-item" x="560" y="560" fill="#10b981" font-size="14" transform="rotate(-30 560 560)" data-title="100+ Intersections" data-desc="Procedural metropolis with 160+ road segments and 9 river bridge channels.">
+        100+ INTERSECTIONS
+      </text>
+      <text class="word-item" x="530" y="510" fill="#6ee7b7" font-size="11" transform="rotate(-30 530 510)" data-title="OpenStreetMap" data-desc="Real-world urban graph extracts for London, Manhattan, and South Mumbai.">
+        OPENSTREETMAP EXTRACTS
+      </text>
+
+      <!-- Floating Scattered Keywords -->
+      <text class="word-item" x="330" y="335" fill="#94a3b8" font-size="10" data-title="Relaxation" data-desc="d(v) = min(d(v), d(u) + w(u,v))">EDGE RELAXATION</text>
+      <text class="word-item" x="470" y="335" fill="#94a3b8" font-size="10" data-title="Adjacency List" data-desc="Space-efficient directed graph representation in O(V+E).">ADJACENCY LIST</text>
+      <text class="word-item" x="330" y="475" fill="#94a3b8" font-size="10" data-title="Frontier Set" data-desc="Active queue of candidate nodes awaiting expansion.">FRONTIER SET</text>
+      <text class="word-item" x="470" y="475" fill="#94a3b8" font-size="10" data-title="Closed Set" data-desc="Set of permanently evaluated vertices with established shortest paths.">CLOSED SET</text>
+      <text class="word-item" x="400" y="275" fill="#38bdf8" font-size="11" font-weight="800" data-title="Optimality" data-desc="Mathematical guarantee that discovered route has minimal cumulative cost.">OPTIMALITY GUARANTEED</text>
+      <text class="word-item" x="400" y="535" fill="#f43f5e" font-size="11" font-weight="800" data-title="Dead Ends" data-desc="Obstacles and bottlenecks that challenge heuristic backtracking.">DEAD-END OBSTACLES</text>
+    </svg>
+  </div>
+
+  <!-- Interactive Definition Tooltip -->
+  <div id="term-tooltip">
+    <strong id="tooltip-title">Term</strong>
+    <span id="tooltip-desc">Description will appear here on hover.</span>
+  </div>
+
+  <script>
+    const tooltip = document.getElementById("term-tooltip");
+    const titleEl = document.getElementById("tooltip-title");
+    const descEl = document.getElementById("tooltip-desc");
+
+    document.querySelectorAll(".word-item").forEach(item => {
+      item.addEventListener("mouseenter", (e) => {
+        const title = item.getAttribute("data-title");
+        const desc = item.getAttribute("data-desc");
+        if (title && desc) {
+          titleEl.textContent = title + ":";
+          descEl.textContent = desc;
+          tooltip.style.display = "block";
+        }
+      });
+
+      item.addEventListener("mouseleave", () => {
+        tooltip.style.display = "none";
+      });
+    });
+
+    function saveAsSVG() {
+      const svgElement = document.getElementById("word-art-svg");
+      const serializer = new XMLSerializer();
+      let source = serializer.serializeToString(svgElement);
+      
+      // Add XML namespaces
+      if(!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)){
+        source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+      }
+
+      const blob = new Blob([source], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const downloadLink = document.createElement("a");
+      downloadLink.href = url;
+      downloadLink.download = "RouteX_Word_Art.svg";
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>

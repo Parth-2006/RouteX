@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RouteX — Analysis of Algorithms Project Mind Map</title>
+  <style>
+    :root {
+      --bg: #070b19;
+      --card-bg: rgba(15, 23, 42, 0.85);
+      --border: rgba(51, 65, 85, 0.7);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --cyan: #06b6d4;
+      --emerald: #10b981;
+      --blue: #3b82f6;
+      --amber: #f59e0b;
+      --pink: #ec4899;
+      --purple: #8b5cf6;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      user-select: none;
+    }
+
+    /* Header Bar */
+    header {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      z-index: 10;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      padding: 12px 20px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    header h1 {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    header h1 span.badge {
+      font-size: 10px;
+      padding: 2px 8px;
+      background: rgba(6, 182, 212, 0.15);
+      border: 1px solid rgba(6, 182, 212, 0.4);
+      color: var(--cyan);
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    header p {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Floating Toolbar */
+    .controls {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      z-index: 10;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      padding: 6px;
+      border-radius: 10px;
+      display: flex;
+      gap: 6px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+
+    .btn {
+      background: #1e293b;
+      color: #e2e8f0;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .btn:hover {
+      background: #334155;
+      color: #ffffff;
+      border-color: var(--cyan);
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, #0284c7, #06b6d4);
+      color: white;
+      border: none;
+    }
+
+    .btn.primary:hover {
+      filter: brightness(1.1);
+    }
+
+    /* SVG Canvas */
+    #svg-canvas {
+      width: 100vw;
+      height: 100vh;
+      cursor: grab;
+    }
+
+    #svg-canvas:active {
+      cursor: grabbing;
+    }
+
+    /* Node Styles */
+    .node-group {
+      cursor: pointer;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .node-rect {
+      rx: 10px;
+      ry: 10px;
+      transition: all 0.2s ease;
+      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+    }
+
+    .node-group:hover .node-rect {
+      stroke-width: 2.5px;
+      filter: drop-shadow(0 0 16px rgba(6, 182, 212, 0.5));
+    }
+
+    .node-title {
+      font-size: 12px;
+      font-weight: 700;
+      fill: #ffffff;
+      pointer-events: none;
+    }
+
+    .node-desc {
+      font-size: 10px;
+      fill: #94a3b8;
+      pointer-events: none;
+    }
+
+    .connector-line {
+      fill: none;
+      stroke-width: 2px;
+      stroke-linecap: round;
+      opacity: 0.75;
+      transition: opacity 0.2s ease;
+    }
+
+    .node-group:hover ~ .connector-line {
+      opacity: 1;
+    }
+
+    /* Detail Drawer */
+    #details-panel {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      max-width: 500px;
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      padding: 16px 20px;
+      border-radius: 12px;
+      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.7);
+      display: none;
+      z-index: 20;
+      animation: fadeIn 0.2s ease;
+    }
+
+    #details-panel h3 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--cyan);
+      margin-bottom: 4px;
+    }
+
+    #details-panel p {
+      font-size: 12px;
+      color: #cbd5e1;
+      line-height: 1.5;
+    }
+
+    #details-panel .meta {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+      font-size: 11px;
+      font-family: monospace;
+      color: #38bdf8;
+    }
+
+    #details-panel .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      background: none;
+      border: none;
+      color: #94a3b8;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Print Formatting */
+    @media print {
+      header, .controls, #details-panel {
+        display: none !important;
+      }
+      body {
+        background: #ffffff !important;
+      }
+      svg text {
+        fill: #000000 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <h1>
+        RouteX — Algorithmic Mind Map
+        <span class="badge">AOA Lab</span>
+      </h1>
+      <p>Analysis of Shortest Path & Graph Traversal Algorithms • Student: Parth</p>
+    </div>
+  </header>
+
+  <div class="controls">
+    <button class="btn" onclick="zoomIn()">Zoom +</button>
+    <button class="btn" onclick="zoomOut()">Zoom -</button>
+    <button class="btn" onclick="resetView()">Reset View</button>
+    <button class="btn primary" onclick="window.print()">Print / PDF</button>
+  </div>
+
+  <div id="details-panel">
+    <button class="close-btn" onclick="closeDetails()">&times;</button>
+    <h3 id="panel-title">Node Title</h3>
+    <p id="panel-desc">Description will appear here.</p>
+    <div class="meta" id="panel-meta"></div>
+  </div>
+
+  <svg id="svg-canvas">
+    <defs>
+      <!-- Background Grid -->
+      <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#11192e" stroke-width="0.8" />
+        <circle cx="0" cy="0" r="1" fill="#1e293b" />
+      </pattern>
+
+      <!-- Glow Filters -->
+      <filter id="glow-cyan" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="4" result="blur" />
+        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+      </filter>
+    </defs>
+
+    <rect width="100%" height="100%" fill="url(#grid)" />
+    <g id="viewport-group"></g>
+  </svg>
+
+  <script>
+    const mindMapData = {
+      id: "root",
+      title: "RouteX Algorithm Lab",
+      desc: "Analysis of Algorithms (AOA) - Shortest Path & Traversal Research Lab",
+      color: "#06b6d4",
+      children: [
+        {
+          id: "uninformed",
+          title: "Uninformed Search",
+          desc: "Blind graph traversal algorithms without domain-specific heuristics",
+          color: "#3b82f6",
+          children: [
+            {
+              id: "bfs",
+              title: "Breadth-First Search (BFS)",
+              desc: "Level-order traversal exploring neighbors uniformly. Guaranteed hop-optimal on unweighted edges.",
+              meta: "Time: O(V+E) | Space: O(V) | Queue: FIFO",
+              color: "#3b82f6"
+            },
+            {
+              id: "dfs",
+              title: "Depth-First Search (DFS)",
+              desc: "Explores as deep as possible along each branch before backtracking. Non-optimal for distance.",
+              meta: "Time: O(V+E) | Space: O(V) | Stack: LIFO",
+              color: "#ec4899"
+            }
+          ]
+        },
+        {
+          id: "informed",
+          title: "Informed / Heuristic Search",
+          desc: "Target-oriented shortest-path finding utilizing cost and heuristic metrics",
+          color: "#10b981",
+          children: [
+            {
+              id: "dijkstra",
+              title: "Dijkstra's Algorithm",
+              desc: "Uniform-cost exploration minimizing g(n). Provably optimal for all non-negative edge costs.",
+              meta: "Time: O((V+E) log V) | Space: O(V) | Min-Heap Priority Queue",
+              color: "#06b6d4"
+            },
+            {
+              id: "astar",
+              title: "A* Search (A-Star)",
+              desc: "f(n) = g(n) + h(n). Uses Haversine heuristic to prune 40%-70% of node expansions with guaranteed optimality.",
+              meta: "Time: O(E) best, O(V log V) worst | Admissible & Consistent",
+              color: "#10b981"
+            },
+            {
+              id: "greedy",
+              title: "Greedy Best-First Search",
+              desc: "f(n) = h(n). Expands nodes closest to the destination. Highly susceptible to dead ends & obstacles.",
+              meta: "Time: O(V log V) | Non-Optimal | Heuristic-driven",
+              color: "#f59e0b"
+            }
+          ]
+        },
+        {
+          id: "math",
+          title: "Mathematical Foundations",
+          desc: "Rigorous analytical formulations and complexity proofs",
+          color: "#8b5cf6",
+          children: [
+            {
+              id: "haversine",
+              title: "Haversine Geodesic Metric",
+              desc: "Great-circle distance on spherical Earth model (R = 6,371,000m). Prevents coordinate distortion.",
+              meta: "Spherical Trigonometry Formula | Exact Distance in Meters",
+              color: "#8b5cf6"
+            },
+            {
+              id: "admissibility",
+              title: "Admissibility Proof: h(n) <= d*(n)",
+              desc: "Great-circle straight line is the physical geodesic lower bound. Guarantees A* never overestimates cost.",
+              meta: "Triangle Inequality | Monotonic f(n)",
+              color: "#8b5cf6"
+            }
+          ]
+        },
+        {
+          id: "architecture",
+          title: "Road Network Architecture",
+          desc: "Offline cartographic graph modeling and rendering pipeline",
+          color: "#f59e0b",
+          children: [
+            {
+              id: "metropolis",
+              title: "100+ Node Metropolis Simulation",
+              desc: "11 districts, 160+ road segments, 9 river bridges, and quadratic Bezier curved road geometries.",
+              meta: "100% Offline | Reproducible Seed | Positive Edge Weights",
+              color: "#f59e0b"
+            },
+            {
+              id: "osm-extracts",
+              title: "Real-World OSM Extracts",
+              desc: "Authentic urban road networks from Central London, Manhattan grid, and South Mumbai.",
+              meta: "OpenStreetMap Data | One-Way Restrictions | Verified Topology",
+              color: "#f59e0b"
+            }
+          ]
+        },
+        {
+          id: "benchmarks",
+          title: "Empirical Benchmarking",
+          desc: "Experimental evaluation and comparative analytics",
+          color: "#ec4899",
+          children: [
+            {
+              id: "metrics",
+              title: "Evaluation Metrics",
+              desc: "High-resolution execution time (ms), node expansion volume, route distance (m), and memory heap.",
+              meta: "Multi-Scenario Benchmarks | Statistical Averages | CSV Export",
+              color: "#ec4899"
+            },
+            {
+              id: "fullscreen-ui",
+              title: "Full-Screen Interactive Lab",
+              desc: "Full viewport coverage with zoom, pan, frame tracer, Recharts analytics, and dynamic endpoint picking.",
+              meta: "Hardware-Accelerated SVG | Responsive Layout | Escape Key Support",
+              color: "#ec4899"
+            }
+          ]
+        }
+      ]
+    };
+
+    // Canvas & Layout Engine
+    const svg = document.getElementById("svg-canvas");
+    const g = document.getElementById("viewport-group");
+    let zoom = 0.95;
+    let panX = window.innerWidth / 2;
+    let panY = window.innerHeight / 2;
+    let isDragging = false;
+    let startX, startY;
+
+    function updateTransform() {
+      g.setAttribute("transform", `translate(${panX}, ${panY}) scale(${zoom})`);
+    }
+
+    function zoomIn() { zoom = Math.min(2.5, zoom * 1.2); updateTransform(); }
+    function zoomOut() { zoom = Math.max(0.4, zoom / 1.2); updateTransform(); }
+    function resetView() {
+      zoom = 0.9;
+      panX = window.innerWidth / 2;
+      panY = window.innerHeight / 2;
+      updateTransform();
+    }
+
+    // Drag handlers
+    svg.addEventListener("mousedown", (e) => {
+      if (e.target.closest(".node-group")) return;
+      isDragging = true;
+      startX = e.clientX - panX;
+      startY = e.clientY - panY;
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+      panX = e.clientX - startX;
+      panY = e.clientY - startY;
+      updateTransform();
+    });
+
+    window.addEventListener("mouseup", () => { isDragging = false; });
+
+    svg.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      const factor = e.deltaY < 0 ? 1.1 : 0.9;
+      zoom = Math.max(0.4, Math.min(2.5, zoom * factor));
+      updateTransform();
+    });
+
+    // Layout computation
+    function renderMindMap() {
+      g.innerHTML = "";
+      const rootX = 0;
+      const rootY = 0;
+
+      // Primary branches: 5 branches distributed radially or in bilateral layout
+      const branches = mindMapData.children;
+      const leftBranches = [branches[0], branches[2]];
+      const rightBranches = [branches[1], branches[3], branches[4]];
+
+      // Render root node
+      drawNode(rootX, rootY, mindMapData.title, "Core Laboratory Hub", mindMapData.color, 200, 56, () => showDetails(mindMapData));
+
+      // Layout Right side
+      layoutSide(rightBranches, 1, rootX, rootY);
+
+      // Layout Left side
+      layoutSide(leftBranches, -1, rootX, rootY);
+
+      updateTransform();
+    }
+
+    function layoutSide(branchList, direction, rootX, rootY) {
+      const col1X = rootX + direction * 280;
+      const col2X = rootX + direction * 560;
+
+      const totalH = branchList.length * 180;
+      let startY = -totalH / 2 + 60;
+
+      branchList.forEach((branch, bIdx) => {
+        const bY = startY + bIdx * 200;
+
+        // Draw connection from root to branch
+        drawCurve(rootX, rootY, col1X, bY, branch.color);
+        drawNode(col1X, bY, branch.title, branch.desc.substring(0, 32) + "...", branch.color, 190, 48, () => showDetails(branch));
+
+        // Layout leaves of this branch
+        if (branch.children) {
+          const leafCount = branch.children.length;
+          const leafStartY = bY - ((leafCount - 1) * 75) / 2;
+
+          branch.children.forEach((leaf, lIdx) => {
+            const leafY = leafStartY + lIdx * 75;
+            drawCurve(col1X, bY, col2X, leafY, leaf.color);
+            drawNode(col2X, leafY, leaf.title, leaf.meta || leaf.desc.substring(0, 36) + "...", leaf.color, 210, 44, () => showDetails(leaf));
+          });
+        }
+      });
+    }
+
+    function drawNode(x, y, title, subtitle, color, width, height, onClick) {
+      const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      group.setAttribute("class", "node-group");
+      group.setAttribute("transform", `translate(${x - width / 2}, ${y - height / 2})`);
+      group.addEventListener("click", (e) => {
+        e.stopPropagation();
+        onClick();
+      });
+
+      const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      rect.setAttribute("class", "node-rect");
+      rect.setAttribute("width", width);
+      rect.setAttribute("height", height);
+      rect.setAttribute("fill", "#0f172a");
+      rect.setAttribute("stroke", color);
+      rect.setAttribute("stroke-width", "1.5");
+      group.appendChild(rect);
+
+      // Title
+      const text1 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      text1.setAttribute("class", "node-title");
+      text1.setAttribute("x", 12);
+      text1.setAttribute("y", height > 46 ? 22 : 18);
+      text1.textContent = title;
+      group.appendChild(text1);
+
+      // Subtitle
+      if (subtitle) {
+        const text2 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text2.setAttribute("class", "node-desc");
+        text2.setAttribute("x", 12);
+        text2.setAttribute("y", height > 46 ? 38 : 32);
+        text2.textContent = subtitle;
+        group.appendChild(text2);
+      }
+
+      g.appendChild(group);
+    }
+
+    function drawCurve(x1, y1, x2, y2, color) {
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("class", "connector-line");
+      const dx = (x2 - x1) / 2;
+      const d = `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`;
+      path.setAttribute("d", d);
+      path.setAttribute("stroke", color);
+      g.insertBefore(path, g.firstChild);
+    }
+
+    function showDetails(item) {
+      document.getElementById("panel-title").textContent = item.title;
+      document.getElementById("panel-desc").textContent = item.desc;
+      const metaEl = document.getElementById("panel-meta");
+      if (item.meta) {
+        metaEl.textContent = item.meta;
+        metaEl.style.display = "block";
+      } else {
+        metaEl.style.display = "none";
+      }
+      document.getElementById("details-panel").style.display = "block";
+    }
+
+    function closeDetails() {
+      document.getElementById("details-panel").style.display = "none";
+    }
+
+    window.addEventListener("resize", () => {
+      panX = window.innerWidth / 2;
+      panY = window.innerHeight / 2;
+      updateTransform();
+    });
+
+    renderMindMap();
+  </script>
+</body>
+</html>
