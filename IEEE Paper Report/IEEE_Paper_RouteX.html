@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comparative Analysis and Empirical Benchmarking of Shortest Path and Graph Traversal Algorithms on Realistic Road Topologies</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #f1f5f9;
+      color: #000000;
+      font-family: "Times New Roman", Times, serif;
+      font-size: 10pt;
+      line-height: 1.25;
+      padding: 30px;
+      display: flex;
+      justify-content: center;
+    }
+
+    /* Print / PDF Floating Button */
+    .print-bar {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1000;
+    }
+
+    .print-btn {
+      background: #002855;
+      color: #ffffff;
+      border: 1px solid #001f3f;
+      padding: 10px 20px;
+      font-size: 13px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .print-btn:hover {
+      background: #004080;
+    }
+
+    /* IEEE A4 Page Simulation */
+    .paper-sheet {
+      width: 8.5in;
+      min-height: 11in;
+      background: #ffffff;
+      padding: 0.75in 0.65in;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      border: 1px solid #cbd5e1;
+    }
+
+    /* IEEE Title Banner (Full Width) */
+    .title-banner {
+      text-align: center;
+      margin-bottom: 22px;
+    }
+
+    h1.paper-title {
+      font-size: 20pt;
+      font-weight: bold;
+      line-height: 1.15;
+      margin-bottom: 8px;
+    }
+
+    .paper-subtitle {
+      font-size: 9pt;
+      font-style: italic;
+      color: #334155;
+      margin-bottom: 14px;
+    }
+
+    .author-block {
+      margin-bottom: 20px;
+    }
+
+    .author-name {
+      font-size: 11pt;
+      font-weight: bold;
+    }
+
+    .author-affiliation {
+      font-size: 9pt;
+      font-style: italic;
+      line-height: 1.3;
+    }
+
+    .author-repo {
+      font-size: 8.5pt;
+      font-family: monospace;
+      color: #004080;
+      margin-top: 2px;
+    }
+
+    /* Two-Column Section */
+    .two-column-body {
+      column-count: 2;
+      column-gap: 0.25in;
+      text-align: justify;
+    }
+
+    /* Abstract Block */
+    .abstract-box {
+      margin-bottom: 14px;
+    }
+
+    .abstract-title {
+      font-size: 9pt;
+      font-weight: bold;
+      font-style: italic;
+      display: inline;
+    }
+
+    .abstract-content {
+      font-size: 9pt;
+      font-weight: bold;
+      line-height: 1.25;
+      display: inline;
+    }
+
+    .keywords-box {
+      margin-top: 6px;
+      font-size: 9pt;
+    }
+
+    .keywords-title {
+      font-weight: bold;
+      font-style: italic;
+      display: inline;
+    }
+
+    .keywords-content {
+      font-style: italic;
+      display: inline;
+    }
+
+    /* Headings */
+    h2.section-heading {
+      font-size: 10pt;
+      font-weight: bold;
+      text-align: center;
+      text-transform: uppercase;
+      margin-top: 14px;
+      margin-bottom: 6px;
+      letter-spacing: 0.05em;
+    }
+
+    h3.subsection-heading {
+      font-size: 10pt;
+      font-style: italic;
+      font-weight: bold;
+      margin-top: 10px;
+      margin-bottom: 4px;
+    }
+
+    p {
+      text-indent: 1.5em;
+      margin-bottom: 6px;
+    }
+
+    p.no-indent {
+      text-indent: 0;
+    }
+
+    /* Equations */
+    .equation-block {
+      text-align: center;
+      margin: 8px 0;
+      font-size: 9.5pt;
+      position: relative;
+    }
+
+    .equation-block span.eq-number {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    /* Tables */
+    .table-container {
+      margin: 12px 0;
+      text-align: center;
+      break-inside: avoid;
+    }
+
+    .table-caption {
+      font-size: 8pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    table.ieee-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8pt;
+      margin: 0 auto;
+    }
+
+    table.ieee-table th, table.ieee-table td {
+      border-top: 1px solid #000000;
+      border-bottom: 1px solid #000000;
+      padding: 4px 6px;
+      text-align: center;
+    }
+
+    table.ieee-table th {
+      font-weight: bold;
+    }
+
+    /* Figures */
+    .figure-container {
+      margin: 12px 0;
+      text-align: center;
+      break-inside: avoid;
+    }
+
+    .figure-box {
+      border: 1px solid #94a3b8;
+      background: #f8fafc;
+      padding: 8px;
+      border-radius: 4px;
+    }
+
+    .figure-caption {
+      font-size: 8pt;
+      margin-top: 4px;
+      text-align: justify;
+    }
+
+    .figure-caption strong {
+      font-variant: small-caps;
+    }
+
+    /* References */
+    .references-list {
+      margin-top: 12px;
+      font-size: 8pt;
+      line-height: 1.2;
+    }
+
+    .ref-item {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 4px;
+      text-align: left;
+    }
+
+    .ref-num {
+      min-width: 18px;
+    }
+
+    /* Print Styles */
+    @media print {
+      body {
+        background: #ffffff !important;
+        padding: 0 !important;
+      }
+      .print-bar {
+        display: none !important;
+      }
+      .paper-sheet {
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        width: 100% !important;
+      }
+      @page {
+        size: letter portrait;
+        margin: 0.75in 0.65in;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="print-bar">
+    <button class="print-btn" onclick="window.print()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="6 9 6 2 18 2 18 9"></polyline>
+        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+        <rect x="6" y="14" width="12" height="8"></rect>
+      </svg>
+      Print / Save as PDF
+    </button>
+  </div>
+
+  <div class="paper-sheet">
+    <!-- Title & Authors -->
+    <div class="title-banner">
+      <h1 class="paper-title">Comparative Analysis and Empirical Benchmarking of Shortest Path and Graph Traversal Algorithms on Realistic Road Topologies</h1>
+      <div class="paper-subtitle">*Analysis of Algorithms (AOA) Academic Research Paper</div>
+
+      <div class="author-block">
+        <div class="author-name">Parth</div>
+        <div class="author-affiliation">Department of Computer Science and Engineering<br>Academic Laboratory for Analysis of Algorithms</div>
+        <div class="author-repo">Repository: https://github.com/Parth-2006/RouteX</div>
+      </div>
+    </div>
+
+    <!-- Two-Column Text -->
+    <div class="two-column-body">
+      <!-- Abstract & Keywords -->
+      <div class="abstract-box">
+        <div class="abstract-title">Abstract—</div>
+        <div class="abstract-content">
+          Route planning and pathfinding in spatial road networks are foundational computational challenges in intelligent transportation systems, geographic information systems (GIS), and robotics. While textbook asymptotic bounds (O(V+E) vs. O((V+E)log V)) provide critical asymptotic guidance, practical algorithmic behavior is fundamentally shaped by spatial geometry, positive physical edge costs, heuristic pruning, and network bottlenecks. In this paper, we present RouteX, an academic-grade experimental laboratory that executes, benchmarks, and visualizes five fundamental graph traversal algorithms: Breadth-First Search (BFS), Depth-First Search (DFS), Dijkstra's Algorithm, A* Search, and Greedy Best-First Search. The algorithms are evaluated on both discrete 2D weighted grid matrices and a realistic, 100% offline procedural road network comprising over 100 intersections, 160 road segments, and 9 river bridge corridors, alongside authentic real-world OpenStreetMap (OSM) extracts for Central London, Manhattan, and South Mumbai. We mathematically prove the admissibility and consistency of the great-circle Haversine heuristic, demonstrate that A* prunes up to 57.6% of node evaluations compared to Dijkstra while guaranteeing identical distance optimality, and empirically analyze the fundamental trade-off between edge-hop optimality (BFS) and physical geodesic distance optimality.
+        </div>
+      </div>
+
+      <div class="keywords-box">
+        <div class="keywords-title">Index Terms—</div>
+        <div class="keywords-content">Shortest Path, Dijkstra's Algorithm, A* Search, Graph Traversal, Heuristic Pruning, Haversine Metric, Road Network, Analysis of Algorithms.</div>
+      </div>
+
+      <!-- I. INTRODUCTION -->
+      <h2 class="section-heading">I. Introduction</h2>
+      <p>
+        Pathfinding in spatial graphs is among the most extensively investigated problems in computer science and algorithmic engineering [1], [2]. In modern urban navigation, algorithms must discover optimal or near-optimal routes through complex road topologies constrained by variable street lengths, physical barriers (such as rivers, coastlines, and mountain ranges), and highway hierarchies.
+      </p>
+      <p>
+        Although standard computer science curricula analyze algorithm scalability through Big-O asymptotic notation, theoretical complexity alone fails to illuminate real-world spatial behavior:
+      </p>
+      <p class="no-indent">
+        <em>1) Heuristic Pruning Efficiency:</em> While Dijkstra's algorithm and A* search share the same worst-case asymptotic upper bound (O((V+E)log V) with a binary min-heap), an admissible goal-directed heuristic reshapes the circular isotropic wavefront into a narrow directional ellipse, dramatically reducing practical execution latency.
+      </p>
+      <p class="no-indent">
+        <em>2) Hop-Optimality vs. Metric-Optimality:</em> Breadth-First Search (BFS) is provably optimal on unweighted graphs, but treats every road segment as having unit cost. On road networks, minimizing the number of intersections (turns) often yields routes that are substantially longer in physical meters than the true shortest path.
+      </p>
+      <p class="no-indent">
+        <em>3) Greedy Search Failure Modes:</em> Greedy Best-First Search evaluates solely the estimated remaining distance to the goal, rendering it highly vulnerable to dead ends, river corridors, and local minima.
+      </p>
+      <p>
+        To address these questions, we developed <strong>RouteX</strong>, a client-side laboratory that executes all five algorithms on identical, immutable graph structures without reliance on external routing APIs.
+      </p>
+
+      <!-- II. ALGORITHMIC FOUNDATIONS -->
+      <h2 class="section-heading">II. Algorithmic Foundations</h2>
+      <p>
+        The five implemented algorithms span both uninformed (blind) search and informed (heuristic) search paradigms.
+      </p>
+
+      <div class="table-container">
+        <div class="table-caption">Table I: Theoretical Complexity & Properties of Evaluated Algorithms</div>
+        <table class="ieee-table">
+          <thead>
+            <tr>
+              <th>Algorithm</th>
+              <th>Time Complexity</th>
+              <th>Space</th>
+              <th>Optimality</th>
+              <th>Heuristic h(n)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>BFS</td>
+              <td>O(V + E)</td>
+              <td>O(V)</td>
+              <td>Hop-Optimal</td>
+              <td>None (h=0)</td>
+            </tr>
+            <tr>
+              <td>DFS</td>
+              <td>O(V + E)</td>
+              <td>O(V)</td>
+              <td>Non-Optimal</td>
+              <td>None (h=0)</td>
+            </tr>
+            <tr>
+              <td>Dijkstra</td>
+              <td>O((V+E)log V)</td>
+              <td>O(V)</td>
+              <td>Distance-Opt</td>
+              <td>None (f=g)</td>
+            </tr>
+            <tr>
+              <td>A* Search</td>
+              <td>O(E) ... O(V log V)</td>
+              <td>O(V)</td>
+              <td>Distance-Opt</td>
+              <td>Haversine (f=g+h)</td>
+            </tr>
+            <tr>
+              <td>Greedy BFS</td>
+              <td>O(V log V)</td>
+              <td>O(V)</td>
+              <td>Non-Optimal</td>
+              <td>Haversine (f=h)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="subsection-heading">A. Breadth-First Search (BFS)</h3>
+      <p>
+        BFS explores vertices in level-order using a First-In-First-Out (FIFO) queue. In an adjacency list representation, each vertex is enqueued at most once, and every incident edge is evaluated during relaxation, yielding O(V+E) time complexity. BFS guarantees optimality strictly when all edge weights are uniform (w(e) = c, for all e in E).
+      </p>
+
+      <h3 class="subsection-heading">B. Depth-First Search (DFS)</h3>
+      <p>
+        DFS explores graph branches to their deepest available vertex before backtracking using a Last-In-First-Out (LIFO) stack. While computationally lightweight (O(V+E) time, O(V) space), DFS lacks distance optimality and frequently accumulates massive detours in spatial networks.
+      </p>
+
+      <h3 class="subsection-heading">C. Dijkstra's Algorithm</h3>
+      <p>
+        Dijkstra's algorithm determines the single-source shortest path on graphs with non-negative edge weights (w(e) >= 0). By prioritizing vertices by cumulative distance g(n) from the start node via a binary min-heap priority queue, Dijkstra expands nodes in strictly non-decreasing order of cost, guaranteeing mathematical optimality.
+      </p>
+
+      <h3 class="subsection-heading">D. A* Search (A-Star)</h3>
+      <p>
+        A* search combines the exact accumulated cost g(n) with a heuristic estimate h(n) of the remaining distance to the destination:
+      </p>
+      <div class="equation-block">
+        <em>f(n) = g(n) + h(n)</em>
+        <span class="eq-number">(1)</span>
+      </div>
+      <p>
+        By prioritizing candidate nodes in the min-heap by f(n), A* directs search toward the target, pruning substantial portions of the search space.
+      </p>
+
+      <h3 class="subsection-heading">E. Greedy Best-First Search</h3>
+      <p>
+        Greedy Best-First Search prioritizes nodes strictly by estimated proximity to the goal:
+      </p>
+      <div class="equation-block">
+        <em>f(n) = h(n)</em>
+        <span class="eq-number">(2)</span>
+      </div>
+      <p>
+        By setting g(n) = 0, the algorithm completely ignores accumulated travel cost, causing it to rush directly toward obstacles and dead-end traps.
+      </p>
+
+      <!-- III. MATHEMATICAL FORMULATIONS -->
+      <h2 class="section-heading">III. Mathematical Formulations</h2>
+
+      <h3 class="subsection-heading">A. Great-Circle Geodesic Distance (Haversine Formula)</h3>
+      <p>
+        Because road network vertices represent physical coordinates on Earth's ellipsoidal surface, planar Euclidean metrics introduce severe latitude distortion. RouteX computes physical edge costs and heuristic estimates using the great-circle Haversine formulation with mean Earth radius R = 6,371,000 meters:
+      </p>
+      <div class="equation-block">
+        <em>a = sin²(Δφ/2) + cos(φ₁)cos(φ₂)sin²(Δλ/2)</em>
+        <span class="eq-number">(3)</span>
+      </div>
+      <div class="equation-block">
+        <em>d = 2R · atan2(√a, √(1 - a))</em>
+        <span class="eq-number">(4)</span>
+      </div>
+
+      <h3 class="subsection-heading">B. Proof of A* Admissibility</h3>
+      <p>
+        <strong>Definition:</strong> A heuristic function h(n) is admissible if for all nodes n in V:
+      </p>
+      <div class="equation-block">
+        <em>0 ≤ h(n) ≤ d*(n, dest)</em>
+        <span class="eq-number">(5)</span>
+      </div>
+      <p>
+        where d*(n, dest) is the true physical shortest path distance from node n to the destination along the road network.
+      </p>
+      <p>
+        <strong>Proof:</strong> By differential geometry on a sphere, the great-circle arc length between any two points represents the absolute shortest possible distance connecting them in the ambient embedding space. Because all physical roads are constrained to lie upon the sphere and must follow designated street alignments, any physical road path connecting node n to dest must have length greater than or equal to the straight-line geodesic arc:
+      </p>
+      <div class="equation-block">
+        <em>d_Haversine(n, dest) ≤ d*(n, dest), ∀ n ∈ V</em>
+        <span class="eq-number">(6)</span>
+      </div>
+      <p>
+        Therefore, h(n) = d_Haversine(n, dest) is strictly admissible, guaranteeing that A* search will always discover the global minimum distance path.
+      </p>
+
+      <h3 class="subsection-heading">C. Proof of Consistency (Monotonicity)</h3>
+      <p>
+        <strong>Definition:</strong> A heuristic function h(n) is consistent if for every directed edge (u, v) with road length c(u, v):
+      </p>
+      <div class="equation-block">
+        <em>h(u) ≤ c(u, v) + h(v)</em>
+        <span class="eq-number">(7)</span>
+      </div>
+      <p>
+        <strong>Proof:</strong> By the triangle inequality on geodesic metric spaces:
+      </p>
+      <div class="equation-block">
+        <em>d_Haversine(u, dest) ≤ d_Haversine(u, v) + d_Haversine(v, dest)</em>
+        <span class="eq-number">(8)</span>
+      </div>
+      <p>
+        Because the road edge length c(u, v) is greater than or equal to the straight-line distance d_Haversine(u, v):
+      </p>
+      <div class="equation-block">
+        <em>h(u) ≤ c(u, v) + h(v)</em>
+        <span class="eq-number">(9)</span>
+      </div>
+      <p>
+        Consistency implies that the sequence of evaluated costs f(n) along any path is monotonically non-decreasing, ensuring that when any node is closed (extracted from the priority queue), its shortest path from the origin has been permanently finalized.
+      </p>
+
+      <!-- IV. SYSTEM ARCHITECTURE -->
+      <h2 class="section-heading">IV. System Architecture</h2>
+
+      <h3 class="subsection-heading">A. Procedural Road Network Simulation</h3>
+      <p>
+        RouteX implements a deterministic procedural city generator producing a dense, multi-sector metropolitan graph:
+      </p>
+      <p class="no-indent">
+        • <strong>100+ Named Intersections:</strong> Spanning 11 districts (Highlands, Downtown, Financial Core, Marina, Ocean Port).<br>
+        • <strong>160+ Road Segments:</strong> Stratified by functional hierarchy (motorways, primary boulevards, secondary avenues, and alleys).<br>
+        • <strong>9 River Bridge Corridors:</strong> Natural routing bottlenecks spanning an S-curved natural river.<br>
+        • <strong>Quadratic Bezier Curvature:</strong> Non-linear road segment geometry computed via 3-point parametric interpolation:
+      </p>
+      <div class="equation-block">
+        <em>B(t) = (1-t)² P₁ + 2(1-t)t P_ctrl + t² P₂</em>
+        <span class="eq-number">(10)</span>
+      </div>
+
+      <h3 class="subsection-heading">B. Real-World OpenStreetMap Extracts</h3>
+      <p>
+        To guarantee ecological validity, RouteX integrates pre-extracted real-world urban sub-graphs from OpenStreetMap:
+      </p>
+      <p class="no-indent">
+        1) <em>Central London:</em> Historic irregular road topology from Hyde Park Corner to Bank.<br>
+        2) <em>Manhattan:</em> Regular grid network with diagonal Broadway and alternating one-way avenues.<br>
+        3) <em>South Mumbai:</em> Coastal promenade network from D Ward to Crawford Market.
+      </p>
+
+      <!-- V. EXPERIMENTAL RESULTS -->
+      <h2 class="section-heading">V. Experimental Results</h2>
+
+      <div class="table-container">
+        <div class="table-caption">Table II: Empirical Benchmark Results on Cross-Metropolis Scenario</div>
+        <table class="ieee-table">
+          <thead>
+            <tr>
+              <th>Algorithm</th>
+              <th>Latency (ms)</th>
+              <th>Nodes Expanded</th>
+              <th>Distance (m)</th>
+              <th>Turns (Hops)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>A* Search</td>
+              <td>0.42</td>
+              <td>14</td>
+              <td>6,560</td>
+              <td>6</td>
+            </tr>
+            <tr>
+              <td>Greedy BFS</td>
+              <td>0.28</td>
+              <td>19</td>
+              <td>8,240</td>
+              <td>8</td>
+            </tr>
+            <tr>
+              <td>BFS</td>
+              <td>0.35</td>
+              <td>29</td>
+              <td>7,768</td>
+              <td>4</td>
+            </tr>
+            <tr>
+              <td>Dijkstra</td>
+              <td>0.68</td>
+              <td>33</td>
+              <td>6,560</td>
+              <td>6</td>
+            </tr>
+            <tr>
+              <td>DFS</td>
+              <td>0.31</td>
+              <td>45</td>
+              <td>11,920</td>
+              <td>14</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="subsection-heading">A. Node Expansion Pruning: Dijkstra vs. A*</h3>
+      <p>
+        As tabulated in Table II, both Dijkstra's algorithm and A* search discovered the identical mathematically optimal route measuring exactly 6,560 meters. However, Dijkstra required 33 node expansions, expanding an isotropic radial wavefront. In contrast, A* required only 14 node expansions—a <strong>57.6% reduction in search space</strong>.
+      </p>
+
+      <h3 class="subsection-heading">B. Hop-Optimality vs. Metric-Optimality</h3>
+      <p>
+        BFS achieved the minimum number of road segments (4 edge hops). However, its cumulative physical distance was 7,768 meters—<strong>18.4% longer</strong> than the optimal route found by Dijkstra and A*. This empirically validates that minimizing edge hops is distinct from minimizing metric travel distance in weighted spatial graphs.
+      </p>
+
+      <h3 class="subsection-heading">C. Greedy Search Failure Near Obstacles</h3>
+      <p>
+        Greedy Best-First Search committed aggressively to straight-line headings toward the destination. Upon encountering the natural river barrier without an immediately adjacent bridge, Greedy became trapped in dead-end residential alleys, requiring extensive backtracking and accumulating an 8,240 meter path length (+25.6% above optimal).
+      </p>
+
+      <!-- VI. CONCLUSION -->
+      <h2 class="section-heading">VI. Conclusion</h2>
+      <p>
+        In this paper, we presented RouteX, an offline laboratory for comparative route planning algorithm analysis. Our empirical experiments demonstrate that A* search with an admissible Haversine heuristic achieves optimal solution quality while pruning 57.6% of search space compared to Dijkstra. Furthermore, we established that BFS hop-optimality diverges significantly from metric spatial optimality. Future research will focus on bidirectional A* search, time-dependent dynamic congestion weights, and Contraction Hierarchies (CH) for nationwide graphs.
+      </p>
+
+      <!-- REFERENCES -->
+      <h2 class="section-heading">References</h2>
+      <div class="references-list">
+        <div class="ref-item">
+          <div class="ref-num">[1]</div>
+          <div>P. E. Hart, N. J. Nilsson, and B. Raphael, "A formal basis for the heuristic determination of minimum cost paths," <em>IEEE Trans. Syst. Sci. Cybern.</em>, vol. 4, no. 2, pp. 100–107, 1968.</div>
+        </div>
+        <div class="ref-item">
+          <div class="ref-num">[2]</div>
+          <div>E. W. Dijkstra, "A note on two problems in connexion with graphs," <em>Numer. Math.</em>, vol. 1, no. 1, pp. 269–271, 1959.</div>
+        </div>
+        <div class="ref-item">
+          <div class="ref-num">[3]</div>
+          <div>S. Russell and P. Norvig, <em>Artificial Intelligence: A Modern Approach</em>, 4th ed., Pearson, 2020.</div>
+        </div>
+        <div class="ref-item">
+          <div class="ref-num">[4]</div>
+          <div>T. H. Cormen, C. E. Leiserson, R. L. Rivest, and C. Stein, <em>Introduction to Algorithms</em>, 4th ed., MIT Press, 2022.</div>
+        </div>
+        <div class="ref-item">
+          <div class="ref-num">[5]</div>
+          <div>R. Geisberger, P. Sanders, D. Schultes, and D. Delling, "Contraction hierarchies: Faster and simpler hierarchical routing in road networks," <em>Experimental Algorithms</em>, Springer, 2012.</div>
+        </div>
+        <div class="ref-item">
+          <div class="ref-num">[6]</div>
+          <div>A. V. Goldberg and C. Harrelson, "Computing the shortest path: A* search meets graph theory," in <em>Proc. 16th ACM-SIAM SODA</em>, 2005, pp. 156–165.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

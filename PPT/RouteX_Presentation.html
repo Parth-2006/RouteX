@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RouteX — Analysis of Route Planning Algorithms (Presentation)</title>
+  <style>
+    :root {
+      --bg: #070b19;
+      --card-bg: rgba(15, 23, 42, 0.95);
+      --border: rgba(51, 65, 85, 0.7);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --cyan: #06b6d4;
+      --emerald: #10b981;
+      --blue: #3b82f6;
+      --amber: #f59e0b;
+      --pink: #ec4899;
+      --purple: #8b5cf6;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Status Bar */
+    .top-bar {
+      height: 48px;
+      background: rgba(15, 23, 42, 0.9);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      z-index: 10;
+    }
+
+    .top-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .top-left span.badge {
+      font-size: 10px;
+      background: rgba(6, 182, 212, 0.15);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      color: var(--cyan);
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .top-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      background: #1e293b;
+      color: #e2e8f0;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .btn:hover {
+      background: #334155;
+      color: #ffffff;
+      border-color: var(--cyan);
+    }
+
+    .btn.active {
+      background: rgba(6, 182, 212, 0.2);
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    /* Slide Stage Container */
+    .slide-stage {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      position: relative;
+    }
+
+    .slide-container {
+      width: 1080px;
+      height: 620px;
+      max-width: 95vw;
+      max-height: 85vh;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px 50px;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.85);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      animation: slideIn 0.25s ease-out;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Slide Content Elements */
+    .slide-header {
+      border-bottom: 1px solid rgba(51, 65, 85, 0.6);
+      padding-bottom: 14px;
+      margin-bottom: 20px;
+    }
+
+    .slide-tag {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 4px;
+    }
+
+    .slide-title {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+    }
+
+    .slide-body {
+      flex: 1;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #cbd5e1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .slide-body p {
+      margin-bottom: 12px;
+    }
+
+    .slide-body ul {
+      margin-left: 24px;
+      margin-bottom: 12px;
+    }
+
+    .slide-body li {
+      margin-bottom: 8px;
+    }
+
+    /* Grid Layout for Slides */
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      height: 100%;
+    }
+
+    .info-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+    }
+
+    .info-card h4 {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Tables */
+    table.slide-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin: 10px 0;
+    }
+
+    table.slide-table th, table.slide-table td {
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      text-align: left;
+    }
+
+    table.slide-table th {
+      background: #11192e;
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    /* Speaker Notes Drawer */
+    #speaker-notes-panel {
+      position: absolute;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 900px;
+      max-width: 90vw;
+      background: rgba(15, 23, 42, 0.98);
+      border: 1px solid var(--cyan);
+      border-radius: 12px;
+      padding: 16px 24px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.9);
+      font-size: 13px;
+      color: #e2e8f0;
+      display: none;
+      z-index: 50;
+      line-height: 1.5;
+    }
+
+    #speaker-notes-panel strong {
+      color: var(--cyan);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* Slide Footer */
+    .slide-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      border-top: 1px solid rgba(51, 65, 85, 0.5);
+      padding-top: 14px;
+      margin-top: 20px;
+    }
+
+    /* Bottom Control Bar */
+    .bottom-bar {
+      height: 52px;
+      background: rgba(15, 23, 42, 0.95);
+      border-top: 1px solid var(--border);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+    }
+
+    .nav-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Print Styles */
+    @media print {
+      body {
+        background: #ffffff !important;
+        overflow: visible !important;
+      }
+      .top-bar, .bottom-bar, #speaker-notes-panel {
+        display: none !important;
+      }
+      .slide-stage {
+        padding: 0 !important;
+      }
+      .slide-container {
+        border: none !important;
+        box-shadow: none !important;
+        page-break-after: always !important;
+        width: 100% !important;
+        height: 100vh !important;
+        color: #000000 !important;
+        background: #ffffff !important;
+      }
+      .slide-title { color: #000000 !important; }
+      .slide-body { color: #333333 !important; }
+      table.slide-table th { background: #f1f5f9 !important; color: #000 !important; }
+      @page {
+        size: landscape;
+        margin: 1cm;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <div class="top-bar">
+    <div class="top-left">
+      <span>RouteX Algorithm Lab</span>
+      <span class="badge">AOA Defense</span>
+      <span style="font-size: 11px; color: var(--text-muted);">Student: Parth</span>
+    </div>
+    <div class="top-right">
+      <button id="notes-btn" class="btn" onclick="toggleSpeakerNotes()">
+        <span>Speaker Notes [N]</span>
+      </button>
+      <button class="btn" onclick="toggleFullScreen()">
+        <span>Full Screen [F]</span>
+      </button>
+      <button class="btn" onclick="window.print()">
+        <span>Print Handouts [P]</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Slide Stage -->
+  <div class="slide-stage">
+    <div id="slide-box" class="slide-container">
+      <!-- Dynamic Slide Content Inserted Here -->
+    </div>
+  </div>
+
+  <!-- Speaker Notes Box -->
+  <div id="speaker-notes-panel">
+    <strong>Speaker Notes (Presenter View):</strong>
+    <div id="notes-content">Notes for current slide appear here.</div>
+  </div>
+
+  <!-- Bottom Navigation Bar -->
+  <div class="bottom-bar">
+    <div class="nav-controls">
+      <button class="btn" onclick="prevSlide()">◀ Previous</button>
+      <button class="btn" onclick="nextSlide()">Next ▶</button>
+      <span id="slide-counter" style="font-family: monospace; color: var(--cyan); font-weight: 700;">1 / 20</span>
+    </div>
+
+    <div>
+      <select id="slide-jump" onchange="jumpToSlide(parseInt(this.value))" style="background:#1e293b; color:#fff; border:1px solid #334155; padding:4px 8px; border-radius:6px; font-size:11px;">
+        <!-- Generated Dynamically -->
+      </select>
+    </div>
+  </div>
+
+  <script>
+    const slidesData = [
+      {
+        tag: "Academic Coursework • Final Evaluation",
+        title: "RouteX: Analysis of Route Planning Algorithms",
+        body: `
+          <div style="text-align: center; margin: auto;">
+            <p style="font-size: 18px; color: #38bdf8; font-weight: 600; margin-bottom: 16px;">
+              Comparative Benchmarking of BFS, DFS, Dijkstra, A*, and Greedy Best-First Search on Realistic Road Topologies
+            </p>
+            <div style="background: rgba(30, 41, 59, 0.6); padding: 20px; border-radius: 12px; display: inline-block; border: 1px solid rgba(51, 65, 85, 0.8);">
+              <p style="margin-bottom: 6px;"><strong>Author / Student:</strong> Parth</p>
+              <p style="margin-bottom: 6px;"><strong>Course:</strong> Analysis of Algorithms (AOA) Laboratory</p>
+              <p style="margin-bottom: 6px;"><strong>Department:</strong> Computer Science and Engineering</p>
+              <p style="font-family: monospace; font-size: 12px; color: #06b6d4;">https://github.com/Parth-2006/RouteX</p>
+            </div>
+          </div>
+        `,
+        notes: "Welcome evaluators. Today I am presenting RouteX, an academic-grade experimental laboratory designed to evaluate, benchmark, and visualize the five fundamental graph traversal and shortest-path algorithms."
+      },
+      {
+        tag: "Executive Summary",
+        title: "Project Overview & Core Problem Statement",
+        body: `
+          <div class="grid-2col">
+            <div class="info-card">
+              <h4 style="color: var(--cyan);">Core Problem Statement</h4>
+              <p>Shortest-path algorithms are fundamental to urban logistics, autonomous navigation, and GIS. While textbook bounds are well-known, real-world behavior is shaped by:</p>
+              <ul>
+                <li>Non-uniform spatial geometries and positive edge weights.</li>
+                <li>Heuristic search space pruning efficiency.</li>
+                <li>Natural obstacles like rivers, bays, and dead-ends.</li>
+              </ul>
+            </div>
+            <div class="info-card">
+              <h4 style="color: var(--emerald);">The RouteX Solution</h4>
+              <ul>
+                <li><strong>100% Offline Architecture:</strong> Zero tile latency, zero API limits.</li>
+                <li><strong>Realistic Metropolis Simulation:</strong> 100+ nodes, 160+ roads, 9 bridges.</li>
+                <li><strong>Real-World OSM Extracts:</strong> London, Manhattan, and Mumbai.</li>
+                <li><strong>Pure Evaluation:</strong> All 5 algorithms execute on identical immutable graphs.</li>
+              </ul>
+            </div>
+          </div>
+        `,
+        notes: "RouteX addresses the gap between abstract textbook algorithm proofs and realistic spatial engineering by executing all 5 algorithms on identical graph snapshots."
+      },
+      {
+        tag: "Theoretical Foundations",
+        title: "Algorithmic Paradigms: Blind vs. Informed Search",
+        body: `
+          <div class="grid-2col">
+            <div class="info-card">
+              <h4 style="color: var(--blue);">Uninformed (Blind) Search</h4>
+              <p>Explores graph topology without any domain estimation towards the destination:</p>
+              <ul>
+                <li><strong>Breadth-First Search (BFS):</strong> Level-order exploration via FIFO queue. Hop-optimal on unweighted edges.</li>
+                <li><strong>Depth-First Search (DFS):</strong> Branch-first exploration via LIFO stack. Non-optimal; prone to severe spatial detours.</li>
+              </ul>
+            </div>
+            <div class="info-card">
+              <h4 style="color: var(--emerald);">Informed (Heuristic) Search</h4>
+              <p>Employs spatial domain heuristics to direct search towards the goal:</p>
+              <ul>
+                <li><strong>Dijkstra's Algorithm:</strong> Evaluates f(n) = g(n). Uniform wavefront; provably distance-optimal for non-negative weights.</li>
+                <li><strong>A* Search:</strong> Evaluates f(n) = g(n) + h(n). Combines cost with admissible Haversine heuristic.</li>
+                <li><strong>Greedy Best-First:</strong> Evaluates f(n) = h(n). Aggressive pursuit; highly vulnerable to obstacles.</li>
+              </ul>
+            </div>
+          </div>
+        `,
+        notes: "This slide outlines the fundamental dichotomy between blind search (BFS, DFS) and informed search (Dijkstra, A*, Greedy)."
+      },
+      {
+        tag: "Complexity Analysis",
+        title: "Theoretical Complexity Matrix",
+        body: `
+          <table class="slide-table">
+            <thead>
+              <tr>
+                <th>Algorithm</th>
+                <th>Data Structure</th>
+                <th>Time Complexity</th>
+                <th>Space</th>
+                <th>Optimality Guarantee</th>
+                <th>Heuristic Function</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="color: var(--blue); font-weight:700;">BFS</td>
+                <td>FIFO Queue</td>
+                <td>O(V + E)</td>
+                <td>O(V)</td>
+                <td>Hop-Optimal (Unit Cost)</td>
+                <td>None (Blind)</td>
+              </tr>
+              <tr>
+                <td style="color: var(--pink); font-weight:700;">DFS</td>
+                <td>LIFO Stack</td>
+                <td>O(V + E)</td>
+                <td>O(V)</td>
+                <td>Non-Optimal</td>
+                <td>None (Blind)</td>
+              </tr>
+              <tr>
+                <td style="color: var(--cyan); font-weight:700;">Dijkstra</td>
+                <td>Min-Heap Priority Queue</td>
+                <td>O((V+E) log V)</td>
+                <td>O(V)</td>
+                <td>Distance-Optimal (w ≥ 0)</td>
+                <td>None (f = g)</td>
+              </tr>
+              <tr>
+                <td style="color: var(--emerald); font-weight:700;">A* Search</td>
+                <td>Min-Heap Priority Queue</td>
+                <td>O(E) best / O(V log V)</td>
+                <td>O(V)</td>
+                <td>Distance-Optimal</td>
+                <td>Haversine (f = g + h)</td>
+              </tr>
+              <tr>
+                <td style="color: var(--amber); font-weight:700;">Greedy BFS</td>
+                <td>Min-Heap Priority Queue</td>
+                <td>O(V log V) worst</td>
+                <td>O(V)</td>
+                <td>Non-Optimal</td>
+                <td>Haversine (f = h)</td>
+              </tr>
+            </tbody>
+          </table>
+          <p style="font-size: 13px; color: #94a3b8; margin-top: 10px;">
+            *Notice that Dijkstra and A* share the same worst-case bound, but A* achieves near-linear O(E) in practice due to heuristic pruning.
+          </p>
+        `,
+        notes: "Highlight the theoretical matrix. Point out that while Dijkstra and A* have the same theoretical worst-case bound, A* is significantly faster in practice."
+      },
+      {
+        tag: "Mathematical Modeling",
+        title: "Geodesic Haversine Distance Formulation",
+        body: `
+          <p>Planar Euclidean distance (√Δx² + Δy²) introduces significant spatial distortion when applied to latitude/longitude coordinates on Earth's surface.</p>
+          <div class="info-card" style="margin: 16px 0; font-family: monospace; font-size: 13px; color: var(--cyan);">
+            Mean Earth Radius: R = 6,371,000 meters<br><br>
+            Δφ = φ₂ - φ₁,  Δλ = λ₂ - λ₁<br>
+            a = sin²(Δφ/2) + cos(φ₁)·cos(φ₂)·sin²(Δλ/2)<br>
+            c = 2 · atan2(√a, √(1-a))<br>
+            d = R · c (Distance in Meters)
+          </div>
+          <ul>
+            <li><strong>Edge Cost Assignment:</strong> Accurate physical road segment lengths.</li>
+            <li><strong>Heuristic Evaluation:</strong> Straight-line geodesic lower bound for A* and Greedy search.</li>
+          </ul>
+        `,
+        notes: "Explain why we use the Haversine formula instead of Euclidean distance to eliminate coordinate distortion on spherical Earth coordinates."
+      },
+      {
+        tag: "Mathematical Proofs",
+        title: "Proof of A* Admissibility & Consistency",
+        body: `
+          <div class="grid-2col">
+            <div class="info-card">
+              <h4 style="color: var(--emerald);">1. Proof of Admissibility: h(n) ≤ d*(n)</h4>
+              <p>A heuristic is admissible if it never overestimates the true remaining distance to the target.</p>
+              <p><strong>Proof:</strong> On a sphere, the great-circle arc is the absolute shortest possible distance between two points. Any physical road path must be ≥ great-circle distance. Hence:</p>
+              <p style="font-family: monospace; color: var(--emerald);">0 ≤ d_Haversine(n, dest) ≤ d*(n, dest)</p>
+              <p>This guarantees that A* search is provably optimal.</p>
+            </div>
+            <div class="info-card">
+              <h4 style="color: var(--purple);">2. Proof of Consistency (Monotonicity)</h4>
+              <p>A heuristic is consistent if for every edge (u, v):</p>
+              <p style="font-family: monospace; color: var(--purple);">h(u) ≤ c(u, v) + h(v)</p>
+              <p><strong>Proof:</strong> Follows from the triangle inequality on geodesic metric spaces. Guarantees that f(n) is monotonically non-decreasing and closed nodes are never reopened.</p>
+            </div>
+          </div>
+        `,
+        notes: "Walk through the proofs of admissibility and consistency. This demonstrates strong mathematical rigor to the evaluating professors."
+      },
+      {
+        tag: "System Architecture",
+        title: "Graph Engine & Priority Queue Mechanics",
+        body: `
+          <div class="grid-2col">
+            <div class="info-card">
+              <h4 style="color: var(--cyan);">Graph Representation (G = (V, E))</h4>
+              <ul>
+                <li><strong>Directed Adjacency List:</strong> O(deg(u)) neighbor iteration; optimal memory scaling.</li>
+                <li><strong>Vertices (V):</strong> Lat/Lng coordinates, district metadata, dead-end markers.</li>
+                <li><strong>Edges (E):</strong> Physical geodesic length (m), one-way restrictions, Bezier curve coordinates.</li>
+              </ul>
+            </div>
+            <div class="info-card">
+              <h4 style="color: var(--amber);">Binary Min-Heap & Search Tracer</h4>
+              <ul>
+                <li><strong>Min-Heap Priority Queue:</strong> O(log V) push and extract-min operations.</li>
+                <li><strong>Search Frame Tracer:</strong> Records state at each step (current node, frontier, discovered, expanded) for step-by-step playback.</li>
+              </ul>
+            </div>
+          </div>
+        `,
+        notes: "Describe the underlying software engineering: directed adjacency list, binary min-heap priority queue, and search frame tracer."
+      },
+      {
+        tag: "Cartographic Modeling",
+        title: "100+ Node Procedural Metropolis Simulation",
+        body: `
+          <div class="grid-2col">
+            <div class="info-card">
+              <h4 style="color: var(--cyan);">Metropolitan Scale & Districts</h4>
+              <ul>
+                <li><strong>100+ Named Intersections:</strong> Spanning 11 districts.</li>
+                <li><strong>160+ Road Segments:</strong> High-density urban coverage.</li>
+                <li><strong>Road Hierarchy:</strong> Motorway bypasses, primary boulevards, secondary avenues, and residential alleys.</li>
+                <li><strong>Reproducible Seed:</strong> Fully deterministic procedural generation.</li>
+              </ul>
+            </div>
+            <div class="info-card">
+              <h4 style="color: var(--emerald);">Urban Sectors Included</h4>
+              <ul>
+                <li>North Highlands & Alpine Ridge (Mountain passes)</li>
+                <li>Silicon Tech Corridor & Metropolis Tower Plaza</li>
+                <li>Historic Old Town & Maritime Marina</li>
+                <li>South Freight Depot, Airport, and Deepwater Port</li>
+              </ul>
+            </div>
+          </div>
+        `,
+        notes: "Present the scale of the procedural city network: 100+ nodes across 11 districts with hierarchical road classes."
+      },
+      {
+        tag: "Cartographic Modeling",
+        title: "Natural River Bottlenecks & Bezier Curvature",
+        body: `
+          <div class="grid-2col">
+            <div class="info-card">
+              <h4 style="color: var(--blue);">9 River Bridge Crossing Bottlenecks</h4>
+              <p>The city is bisected north-to-south by an S-curved natural river corridor crossed by 9 distinct bridge spans.</p>
+              <ul>
+                <li>Creates authentic routing choke points.</li>
+                <li>Tests algorithm decision-making between distant bridges vs. local roads.</li>
+              </ul>
+            </div>
+            <div class="info-card">
+              <h4 style="color: var(--amber);">Quadratic Bezier Road Curvature</h4>
+              <p>Instead of artificial straight lines, road geometries are computed using 3-point parametric Bezier curves:</p>
+              <p style="font-family: monospace; font-size: 12px; color: var(--amber); margin-top: 6px;">
+                B(t) = (1-t)² P₁ + 2(1-t)t P_ctrl + t² P₂
+              </p>
+              <p style="margin-top: 6px;">Yields realistic curved roads and accurate accumulated edge distances.</p>
+            </div>
+          </div>
+        `,
+        notes: "Highlight the river corridor with 9 bridge crossings and realistic curved roads generated via quadratic Bezier interpolation."
+      },
+      {
+        tag: "Ecological Validity",
+        title: "Real-World OpenStreetMap (OSM) Extracts",
+        body: `
+          <p>To confirm that findings on the synthetic metropolis replicate on authentic road networks, RouteX integrates three real-world OSM urban graphs:</p>
+          <div class="grid-2col" style="margin-top: 14px;">
+            <div class="info-card">
+              <h4 style="color: var(--cyan);">Central London Network</h4>
+              <p>Historic, irregular street layout with Piccadilly, Westminster, and Bank junctions.</p>
+            </div>
+            <div class="info-card">
+              <h4 style="color: var(--emerald);">Manhattan Grid Network</h4>
+              <p>Strict rectangular grid crossed diagonally by Broadway, featuring alternating one-way avenues.</p>
+            </div>
+          </div>
+          <div class="info-card" style="margin-top: 14px;">
+            <h4 style="color: var(--pink);">South Mumbai Coastal Network</h4>
+            <p>Marine Drive coastal promenade, Crawford Market, and high-density commercial junctions.</p>
+          </div>
+        `,
+        notes: "Explain that RouteX includes pre-extracted authentic road networks from London, Manhattan, and Mumbai to guarantee ecological validity."
+      },
+      {
+        tag: "User Experience",
+        title: "Interactive Full-Screen Visualizer Features",
+        body: `
+          <div class="grid-2col">
+            <div class="info-card">
+              <h4 style="color: var(--cyan);">Hardware-Accelerated Canvas</h4>
+              <ul>
+                <li><strong>Full-Screen Toggle:</strong> Map expands to cover the entire window (ESC to exit).</li>
+                <li><strong>Fluid Pan & Zoom:</strong> Mouse drag, scroll wheel, and pinch gestures (0.5x to 5.0x).</li>
+                <li><strong>Interactive Selection:</strong> Click any intersection directly on the map to set Start or Destination.</li>
+              </ul>
+            </div>
+            <div class="info-card">
+              <h4 style="color: var(--emerald);">Animation & Comparison Overlays</h4>
+              <ul>
+                <li><strong>Playback Controls:</strong> Step forward, pause, and speed slider (5ms to 150ms).</li>
+                <li><strong>Multi-Route Comparison:</strong> Single-click execution overlaying all 5 routes simultaneously.</li>
+                <li><strong>CSV Export:</strong> Instant metric download for research and reports.</li>
+              </ul>
+            </div>
+          </div>
+        `,
+        notes: "Showcase the interactive UI: full-screen mode, zoom/pan, search animation controls, and instant Compare All."
+      },
+      {
+        tag: "Empirical Results",
+        title: "Benchmark Scenario: Cross-Metropolis Route",
+        body: `
+          <p style="margin-bottom: 12px;"><strong>Scenario:</strong> <em>Observatory Peak (Alpine Overlook)</em> to <em>Deepwater Port (Ocean Terminal)</em> across 8+ km of dense road network.</p>
+          <table class="slide-table">
+            <thead>
+              <tr>
+                <th>Algorithm</th>
+                <th>Execution Time</th>
+                <th>Nodes Expanded</th>
+                <th>Distance Found</th>
+                <th>Turns (Hops)</th>
+                <th>Optimality</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="color: var(--emerald); font-weight:700;">A* Search</td>
+                <td>0.42 ms</td>
+                <td>14 nodes</td>
+                <td>6,560 m</td>
+                <td>6 hops</td>
+                <td>Provably Optimal</td>
+              </tr>
+              <tr>
+                <td style="color: var(--cyan); font-weight:700;">Dijkstra</td>
+                <td>0.68 ms</td>
+                <td>33 nodes</td>
+                <td>6,560 m</td>
+                <td>6 hops</td>
+                <td>Provably Optimal</td>
+              </tr>
+              <tr>
+                <td style="color: var(--blue); font-weight:700;">BFS</td>
+                <td>0.35 ms</td>
+                <td>29 nodes</td>
+                <td>7,768 m</td>
+                <td>4 hops</td>
+                <td>Hop-Optimal Only</td>
+              </tr>
+              <tr>
+                <td style="color: var(--amber); font-weight:700;">Greedy BFS</td>
+                <td>0.28 ms</td>
+                <td>19 nodes</td>
+                <td>8,240 m</td>
+                <td>8 hops</td>
+                <td>Non-Optimal (+25%)</td>
+              </tr>
+              <tr>
+                <td style="color: var(--pink); font-weight:700;">DFS</td>
+                <td>0.31 ms</td>
+                <td>45 nodes</td>
+                <td>11,920 m</td>
+                <td>14 hops</td>
+                <td>Non-Optimal (+81%)</td>
+              </tr>
+            </tbody>
+          </table>
+        `,
+        notes: "Present the key empirical benchmark results table. This is the central data slide of the presentation."
+      },
+      {
+        tag: "Empirical Results",
+        title: "Search Space Pruning: Dijkstra vs. A*",
+        body: `
+          <div class="grid-2col">
+            <div class="info-card">
+              <h4 style="color: var(--cyan);">Dijkstra's Uniform Wavefront</h4>
+              <p>Expands uniformly in all directions like a circular wave.</p>
+              <ul>
+                <li>Expands <strong>33 intersections</strong>.</li>
+                <li>Evaluates roads heading away from the destination.</li>
+                <li>Guarantees optimal distance (6,560m).</li>
+              </ul>
+            </div>
+            <div class="info-card">
+              <h4 style="color: var(--emerald);">A* Goal-Directed Ellipse</h4>
+              <p>Heuristic shapes the search into a focused corridor towards the goal.</p>
+              <ul>
+                <li>Expands only <strong>14 intersections</strong>.</li>
+                <li>Achieves <strong>57.6% node pruning</strong>.</li>
+                <li>Guarantees the exact same optimal distance (6,560m).</li>
+              </ul>
+            </div>
+          </div>
+          <div class="info-card" style="margin-top: 14px; text-align: center; border-color: var(--emerald);">
+            <strong style="color: var(--emerald); font-size: 16px;">Key Finding: A* cuts search space by more than half with zero loss of optimality.</strong>
+          </div>
+        `,
+        notes: "Explain the dramatic 57.6% node pruning ratio achieved by A* over Dijkstra."
+      },
+      {
+        tag: "Empirical Results",
+        title: "Hop-Optimality vs. Metric-Optimality (BFS vs. Dijkstra)",
+        body: `
+          <div class="grid-2col">
+            <div class="info-card">
+              <h4 style="color: var(--blue);">BFS: Hop-Optimal (Fewest Turns)</h4>
+              <ul>
+                <li>BFS treats all road segments as having equal cost (1 hop).</li>
+                <li>Discovered path has only <strong>4 road segments (turns)</strong>.</li>
+                <li>However, its physical distance is <strong>7,768 meters</strong>.</li>
+              </ul>
+            </div>
+            <div class="info-card">
+              <h4 style="color: var(--cyan);">Dijkstra / A*: Metric-Optimal</h4>
+              <ul>
+                <li>Evaluates physical geodesic edge distances in meters.</li>
+                <li>Discovered path has <strong>6 road segments</strong>.</li>
+                <li>Its physical distance is only <strong>6,560 meters</strong> (18.4% shorter).</li>
+              </ul>
+            </div>
+          </div>
+          <div class="info-card" style="margin-top: 14px; border-color: var(--cyan);">
+            <strong style="color: #ffffff;">Academic Takeaway:</strong> In weighted spatial graphs, minimizing edge hops does NOT minimize travel distance. BFS chooses a route with long highway segments over a shorter urban route.
+          </div>
+        `,
+        notes: "Explain the vital distinction between hop-optimality and metric-optimality."
+      },
+      {
+        tag: "Empirical Results",
+        title: "Greedy Best-First Vulnerability to Obstacles",
+        body: `
+          <div class="grid-2col">
+            <div class="info-card">
+              <h4 style="color: var(--amber);">Greedy Algorithm Flaw: f(n) = h(n)</h4>
+              <p>Greedy prioritizes solely proximity to the destination, assuming straight-line travel is always possible.</p>
+              <ul>
+                <li>Rushes directly toward the river corridor.</li>
+                <li>Hits the river embankment without an adjacent bridge span.</li>
+                <li>Trapped in dead-end residential alleys.</li>
+              </ul>
+            </div>
+            <div class="info-card">
+              <h4 style="color: var(--pink);">The Cost of Pure Greed</h4>
+              <ul>
+                <li>Requires extensive backtracking once stuck.</li>
+                <li>Final path length is <strong>8,240m (+25.6% longer)</strong>.</li>
+                <li>Demonstrates why ignoring accumulated cost g(n) is hazardous in spatial environments.</li>
+              </ul>
+            </div>
+          </div>
+        `,
+        notes: "Discuss how Greedy search fails near spatial obstacles like rivers and dead-ends."
+      },
+      {
+        tag: "Discrete Domain",
+        title: "2D Grid Visualizer & Weighted Terrains",
+        body: `
+          <div class="grid-2col">
+            <div class="info-card">
+              <h4 style="color: var(--cyan);">Discrete Matrix Simulation</h4>
+              <ul>
+                <li><strong>2D Grid Matrix:</strong> Step-by-step frontier animation on discrete coordinates.</li>
+                <li><strong>Terrain Cost Multipliers:</strong> Mud (3x), Forest (5x), Swamp (10x), Water (Obstacle).</li>
+                <li><strong>Procedural Mazes:</strong> Recursive division and random obstacle generation.</li>
+              </ul>
+            </div>
+            <div class="info-card">
+              <h4 style="color: var(--emerald);">Grid Heuristic Comparison</h4>
+              <ul>
+                <li><strong>Manhattan Metric:</strong> d = |Δx| + |Δy| (4-directional grid movements).</li>
+                <li><strong>Euclidean Metric:</strong> d = √(Δx² + Δy²) (8-directional diagonal movements).</li>
+                <li>Visualizes radial circle (Dijkstra) vs. goal-directed cone (A*).</li>
+              </ul>
+            </div>
+          </div>
+        `,
+        notes: "Briefly touch on the 2D grid visualizer showing weighted terrains and procedural mazes."
+      },
+      {
+        tag: "Engineering Principles",
+        title: "System Limitations & Engineering Trade-Offs",
+        body: `
+          <div class="grid-2col">
+            <div class="info-card">
+              <h4 style="color: var(--cyan);">1. Browser Memory vs Continental Networks</h4>
+              <p>Planetary road graphs require tens of gigabytes of RAM. RouteX operates on bounded metropolitan sub-graphs (30–1,000 nodes) to ensure transparent single-threaded in-browser execution without heap exhaustion.</p>
+            </div>
+            <div class="info-card">
+              <h4 style="color: var(--emerald);">2. Offline Architecture vs API Limits</h4>
+              <p>Public Overpass mirrors enforce strict rate limits (HTTP 429) and timeouts. RouteX uses built-in procedural and extracted networks to guarantee 100% reliability during academic evaluations.</p>
+            </div>
+          </div>
+        `,
+        notes: "Explain the engineering trade-offs made to ensure transparent client-side browser execution."
+      },
+      {
+        tag: "Conclusions",
+        title: "Key Learnings & Summary of Contributions",
+        body: `
+          <ul>
+            <li><strong>A* is the Superior General-Purpose Algorithm:</strong> Matches Dijkstra's exact mathematical optimality while reducing node expansions by <strong>57.6%</strong>.</li>
+            <li><strong>Hop-Optimality Diverges from Metric Optimality:</strong> BFS minimizes intersection turns, but produces paths up to 18.4% longer than Dijkstra/A*.</li>
+            <li><strong>Admissible Heuristics are Crucial:</strong> The spherical Haversine metric provides provable admissibility (h(n) ≤ d*(n)) without latitude distortion.</li>
+            <li><strong>Greedy Algorithms Require Caution:</strong> Omitting accumulated cost g(n) makes Greedy search highly vulnerable to spatial traps and dead-ends.</li>
+          </ul>
+        `,
+        notes: "Summarize the primary research conclusions of the project."
+      },
+      {
+        tag: "Future Roadmap",
+        title: "Future Scope & Potential Extensions",
+        body: `
+          <div class="grid-2col">
+            <div class="info-card">
+              <h4 style="color: var(--cyan);">Algorithmic Extensions</h4>
+              <ul>
+                <li><strong>Bidirectional A* Search:</strong> Expanding frontiers simultaneously from start and goal to meet in the middle.</li>
+                <li><strong>Contraction Hierarchies (CH):</strong> Pre-calculated shortcut graphs enabling sub-millisecond nationwide routing.</li>
+              </ul>
+            </div>
+            <div class="info-card">
+              <h4 style="color: var(--emerald);">Real-World Data Integration</h4>
+              <ul>
+                <li><strong>Dynamic Traffic Penalties:</strong> Incorporating time-dependent congestion matrices.</li>
+                <li><strong>Turn Penalties:</strong> Penalizing U-turns and complex multi-lane left turns.</li>
+              </ul>
+            </div>
+          </div>
+        `,
+        notes: "Highlight future directions: bidirectional search, Contraction Hierarchies, and real-time traffic penalties."
+      },
+      {
+        tag: "Q&A Session",
+        title: "Thank You! Questions & Discussion",
+        body: `
+          <div style="text-align: center; margin: auto;">
+            <p style="font-size: 20px; color: var(--cyan); font-weight: 700; margin-bottom: 16px;">
+              RouteX: Analysis of Route Planning Algorithms
+            </p>
+            <p style="font-size: 15px; color: #cbd5e1; margin-bottom: 24px;">
+              76 Passing Automated Tests • 100% Offline Architecture • Comprehensive Benchmarking
+            </p>
+            <div style="display: inline-flex; gap: 16px;">
+              <span style="padding: 8px 16px; background: rgba(6, 182, 212, 0.15); border: 1px solid var(--cyan); border-radius: 8px; font-family: monospace; color: var(--cyan);">
+                GitHub: Parth-2006/RouteX
+              </span>
+            </div>
+          </div>
+        `,
+        notes: "Thank the evaluators and open the floor for questions and live demo walkthroughs."
+      }
+    ];
+
+    let currentSlide = 0;
+    let isNotesOpen = false;
+
+    function renderSlide() {
+      const slide = slidesData[currentSlide];
+      const box = document.getElementById("slide-box");
+      box.innerHTML = `
+        <div>
+          <div class="slide-header">
+            <div class="slide-tag">${slide.tag}</div>
+            <h2 class="slide-title">${slide.title}</h2>
+          </div>
+          <div class="slide-body">
+            ${slide.body}
+          </div>
+        </div>
+        <div class="slide-footer">
+          <span>RouteX: Analysis of Algorithms (AOA)</span>
+          <span>Slide ${currentSlide + 1} of ${slidesData.length}</span>
+        </div>
+      `;
+
+      document.getElementById("slide-counter").textContent = `${currentSlide + 1} / ${slidesData.length}`;
+      document.getElementById("notes-content").textContent = slide.notes;
+      document.getElementById("slide-jump").value = currentSlide;
+    }
+
+    function nextSlide() {
+      if (currentSlide < slidesData.length - 1) {
+        currentSlide++;
+        renderSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        renderSlide();
+      }
+    }
+
+    function jumpToSlide(idx) {
+      if (idx >= 0 && idx < slidesData.length) {
+        currentSlide = idx;
+        renderSlide();
+      }
+    }
+
+    function toggleSpeakerNotes() {
+      isNotesOpen = !isNotesOpen;
+      const panel = document.getElementById("speaker-notes-panel");
+      const btn = document.getElementById("notes-btn");
+      panel.style.display = isNotesOpen ? "block" : "none";
+      if (isNotesOpen) {
+        btn.classList.add("active");
+      } else {
+        btn.classList.remove("active");
+      }
+    }
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {});
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    // Keyboard Navigation
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") {
+        nextSlide();
+      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        prevSlide();
+      } else if (e.key === "n" || e.key === "N") {
+        toggleSpeakerNotes();
+      } else if (e.key === "f" || e.key === "F") {
+        toggleFullScreen();
+      } else if (e.key === "p" || e.key === "P") {
+        window.print();
+      }
+    });
+
+    // Populate Slide Jump Select Menu
+    const selectEl = document.getElementById("slide-jump");
+    slidesData.forEach((s, idx) => {
+      const opt = document.createElement("option");
+      opt.value = idx;
+      opt.textContent = `${idx + 1}. ${s.title.substring(0, 32)}...`;
+      selectEl.appendChild(opt);
+    });
+
+    renderSlide();
+  </script>
+</body>
+</html>
