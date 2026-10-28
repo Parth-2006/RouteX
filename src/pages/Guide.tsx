@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BookOpen, ChevronDown, ChevronRight, Code, Target, AlertCircle, GraduationCap, HelpCircle } from 'lucide-react';
+import { BookOpen, ChevronDown, ChevronRight, Code, Target, AlertCircle } from 'lucide-react';
 import { ALGORITHM_INFO } from '../utils/algorithmInfo';
 import { AlgorithmInfo, AlgorithmName } from '../algorithms/types';
 import { ALGORITHM_COLORS } from '../utils/helpers';
@@ -81,9 +81,6 @@ export function Guide() {
           />
         ))}
       </div>
-
-      {/* Viva section */}
-      <VivaSection />
     </div>
   );
 }
@@ -168,97 +165,6 @@ function PropCard({ label, value }: { label: string; value: string }) {
     <div className="bg-navy-700/50 rounded-lg px-3 py-2">
       <div className="text-[10px] text-gray-500 uppercase tracking-wider">{label}</div>
       <div className="text-xs text-gray-200 font-mono mt-0.5">{value}</div>
-    </div>
-  );
-}
-
-function VivaSection() {
-  const questions = [
-    {
-      q: 'What is the main difference between BFS and DFS?',
-      a: 'BFS uses a FIFO queue and explores level-by-level, guaranteeing the shortest path in unweighted graphs. DFS uses a LIFO stack and explores depth-first, finding a valid path but not necessarily the shortest one.',
-    },
-    {
-      q: 'Why does Dijkstra guarantee optimality while Greedy does not?',
-      a: "Dijkstra considers the actual cumulative cost g(n) from start to each node, always expanding the cheapest-so-far node. Greedy only considers the heuristic estimate h(n) to the goal, ignoring the cost already incurred, which can lead to suboptimal paths.",
-    },
-    {
-      q: 'What makes A* optimal?',
-      a: 'A* uses f(n) = g(n) + h(n), combining actual cost with an admissible heuristic (one that never overestimates). This guarantees it finds the optimal path while typically expanding fewer nodes than Dijkstra.',
-    },
-    {
-      q: 'What is an admissible heuristic?',
-      a: 'An admissible heuristic never overestimates the true cost to reach the goal. Manhattan distance is admissible for 4-directional grid movement with unit costs.',
-    },
-    {
-      q: 'Why can BFS find the shortest path but not the cheapest on weighted graphs?',
-      a: "BFS finds the path with the fewest edges (hops). In weighted graphs, a path with more edges can have lower total cost. BFS doesn't consider edge weights at all.",
-    },
-    {
-      q: "Is DFS complete? Does it always find a path if one exists?",
-      a: 'DFS is complete on finite graphs with cycle detection (tracking visited nodes). Without cycle detection, DFS could loop infinitely in graphs with cycles.',
-    },
-    {
-      q: 'What data structure is essential for Dijkstra and A*?',
-      a: 'A min-heap priority queue, which efficiently extracts the node with the lowest priority. Using a simple array would degrade performance from O((V+E) log V) to O(V²).',
-    },
-    {
-      q: "What is peak frontier size and why is it used as a memory proxy?",
-      a: "Peak frontier size is the maximum number of nodes in the open set (queue/frontier) at any point during execution. It approximates memory usage because the frontier is the primary source of memory consumption. It's a proxy, not actual memory measurement in bytes.",
-    },
-    {
-      q: 'Why is no single algorithm best for all scenarios?',
-      a: 'Each algorithm makes different trade-offs. BFS is optimal only for unweighted graphs. Dijkstra handles weights but explores all directions. A* is efficient with good heuristics but requires heuristic design. DFS is memory-efficient but non-optimal. Greedy is fast but can be misled.',
-    },
-    {
-      q: 'How does the benchmarking methodology ensure fair comparison?',
-      a: 'All algorithms run on identical, reproducible grid inputs (using seeded random generation) and identical road graph snapshots. Timing uses performance.now() strictly around execution, excluding data downloading and rendering.',
-    },
-    {
-      q: 'How does the Haversine metric guarantee admissibility in A* on real-world road networks?',
-      a: 'The straight-line spherical Haversine distance between any node and the destination is the shortest physical distance on the Earth surface. Real roads must follow terrain and street turns, meaning road distance >= straight-line distance (h(n) <= h*(n)). Because h never overestimates true road distance, it is strictly admissible, guaranteeing A* finds the optimal least-distance path.',
-    },
-    {
-      q: 'Why can BFS find a path with fewer road segments that is geographically longer than Dijkstra?',
-      a: 'BFS treats all edges with equal unit cost (w=1) and minimizes edge count (hops/intersections). On real road networks, a long ring-road or highway bypass may count as 1 edge, whereas a series of short city streets has multiple edges. BFS will select the single highway edge even if its physical distance in meters is longer than the city streets.',
-    },
-    {
-      q: 'How are one-way streets handled in directed road graph algorithms?',
-      a: 'One-way roads are modeled as directed edges (u -> v) without inserting the reverse edge (v -> u). The search algorithms only traverse outgoing edges from the adjacency list, naturally guaranteeing that calculated routes respect legal traffic flow.',
-    },
-  ];
-
-  return (
-    <div className="bg-navy-800 border border-slate-border rounded-xl overflow-hidden">
-      <div className="px-4 py-3 border-b border-slate-border flex items-center gap-2">
-        <GraduationCap size={16} className="text-cyan-accent" />
-        <h2 className="text-sm font-semibold text-white">AOA Viva Preparation</h2>
-      </div>
-      <div className="divide-y divide-slate-border/30">
-        {questions.map((item, idx) => (
-          <VivaItem key={idx} question={item.q} answer={item.a} index={idx + 1} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function VivaItem({ question, answer, index }: { question: string; answer: string; index: number }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div>
-      <button onClick={() => setOpen(!open)} className="w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-white/[0.02] transition-colors">
-        <span className="bg-cyan-accent/10 text-cyan-accent w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">
-          {index}
-        </span>
-        <span className="text-sm text-gray-200 flex-1">{question}</span>
-        <HelpCircle size={14} className={`shrink-0 mt-1 transition-colors ${open ? 'text-cyan-accent' : 'text-gray-600'}`} />
-      </button>
-      {open && (
-        <div className="px-4 pb-3 pl-13">
-          <p className="text-xs text-gray-400 leading-relaxed ml-9 pl-0.5">{answer}</p>
-        </div>
-      )}
     </div>
   );
 }
